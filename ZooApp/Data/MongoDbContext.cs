@@ -44,7 +44,7 @@ namespace ZooApp.Data;
 
         // 🍽 Графік годувань
         public IMongoCollection<FeedingSchedule> FeedingSchedules =>
-            _database.GetCollection<FeedingSchedule>("FeedingsSchedules");
+            _database.GetCollection<FeedingSchedule>("FeedingSchedule");
 
         // 🔄 Обміни зоопарків
         public IMongoCollection<Exchange> Exchanges =>

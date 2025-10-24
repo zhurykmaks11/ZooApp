@@ -69,26 +69,30 @@ namespace ZooApp.Views
 
         private void Feeding_Click(object sender, RoutedEventArgs e)
         {
-            var win = new FeedingWindow();
+            var win = new FeedingWindow(_role);
             win.Show();
+            this.Close();
         }
 
         private void Medical_Click(object sender, RoutedEventArgs e)
         {
             var win = new MedicalWindow();
             win.Show();
+            this.Close();
         }
 
         private void Exchange_Click(object sender, RoutedEventArgs e)
         {
             var win = new ExchangeWindow();
             win.Show();
+            this.Close();
         }
 
         private void Employees_Click(object sender, RoutedEventArgs e)
         {
             var win = new EmployeesWindow();
             win.Show();
+            this.Close();
         }
 
         private void Logout_Click(object sender, RoutedEventArgs e)

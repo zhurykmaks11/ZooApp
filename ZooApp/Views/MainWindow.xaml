@@ -1,0 +1,59 @@
+﻿<Window x:Class="ZooApp.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ZooApp" Height="400" Width="600"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock x:Name="RoleLabel"
+                       FontSize="18"
+                       TextAlignment="Center"
+                       Margin="0,0,0,20"
+                       FontWeight="Bold"/>
+
+            <!-- 🐘 Тварини -->
+            <Button x:Name="AnimalsButton"
+                    Content="🐘 Animals"
+                    Width="200" Height="40" Margin="0,5,0,5"
+                    Click="Animals_Click"/>
+
+            <!-- 🍽 Годування -->
+            <Button x:Name="FeedingButton"
+                    Content="🍽 Feeding"
+                    Width="200" Height="40" Margin="0,5,0,5"
+                    Click="Feeding_Click"/>
+
+            <!-- 🩺 Медичні записи -->
+            <Button x:Name="MedicalButton"
+                    Content="🩺 Medical"
+                    Width="200" Height="40" Margin="0,5,0,5"
+                    Click="Medical_Click"/>
+
+            <!-- 🔄 Обміни -->
+            <Button x:Name="ExchangeButton"
+                    Content="🔄 Exchange"
+                    Width="200" Height="40" Margin="0,5,0,5"
+                    Click="Exchange_Click"/>
+
+            <!-- 👨‍💼 Працівники -->
+            <Button x:Name="EmployeesButton"
+                    Content="👨‍💼 Employees"
+                    Width="200" Height="40" Margin="0,5,0,5"
+                    Click="Employees_Click"/>
+
+            <!-- ➕ Додавання користувача -->
+            <Button x:Name="AddUserButton"
+                    Content="➕ Add User"
+                    Width="200" Height="40" Margin="0,10,0,0"
+                    Background="LightSkyBlue"
+                    Click="AddUser_Click"/>
+
+            <!-- 🚪 Вихід -->
+            <Button x:Name="LogoutButton"
+                    Content="🚪 Logout"
+                    Width="200" Height="40" Margin="0,20,0,0"
+                    Background="LightCoral"
+                    Click="Logout_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

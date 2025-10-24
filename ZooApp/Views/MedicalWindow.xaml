@@ -1,0 +1,8 @@
+﻿<Window x:Class="ZooApp.Views.MedicalWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Medical Records" Height="400" Width="600">
+    <Grid>
+        <TextBlock Text="🩺 Medical Records" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="22"/>
+    </Grid>
+</Window>

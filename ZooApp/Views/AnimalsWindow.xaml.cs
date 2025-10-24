@@ -9,11 +9,13 @@ namespace ZooApp.Views
     public partial class AnimalsWindow : Window
     {
         private readonly IMongoCollection<Animal> _animals;
+        private readonly string _role;
 
-        public AnimalsWindow()
+        public AnimalsWindow(string role)
         {
             InitializeComponent();
 
+            _role = role;
             var context = new MongoDbContext("mongodb://localhost:27017", "test");
             _animals = context.Animals;
             LoadAnimals();
@@ -27,46 +29,63 @@ namespace ZooApp.Views
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            var newAnimal = new Animal
+            var window = new AddEditAnimalWindow(_role);
+            if (window.ShowDialog() == true)
             {
-                Name = "New Animal",
-                Species = "Unknown",
-                Gender = "Unknown",
-                BirthDate = System.DateTime.Now,
-                Weight = 0,
-                Height = 0,
-                Type = "herbivore",
-                ClimateZone = "temperate"
-            };
-
-            _animals.InsertOne(newAnimal);
-            LoadAnimals();
+                _animals.InsertOne(window.Animal);
+                LoadAnimals();
+            }
         }
 
         private void Edit_Click(object sender, RoutedEventArgs e)
         {
             if (AnimalsGrid.SelectedItem is Animal selected)
             {
-                selected.Name = "Updated Animal";
-                _animals.ReplaceOne(a => a.Id == selected.Id, selected);
-                LoadAnimals();
+                var window = new AddEditAnimalWindow(_role, selected);
+                if (window.ShowDialog() == true)
+                {
+                    _animals.ReplaceOne(a => a.Id == selected.Id, window.Animal);
+                    LoadAnimals();
+                }
             }
             else
             {
                 MessageBox.Show("Select an animal to edit.");
             }
         }
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            // 🧠 Шукаємо, чи вже є відкрите головне вікно
+            foreach (Window w in Application.Current.Windows)
+            {
+                if (w is MainWindow main)
+                {
+                    main.Show();
+                    this.Close();
+                    return;
+                }
+            }
+
+            // 🆕 Якщо ні — створюємо нове головне меню з поточною роллю
+            new MainWindow(_role).Show();
+            this.Close();
+        }
+
+
 
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
             if (AnimalsGrid.SelectedItem is Animal selected)
             {
-                _animals.DeleteOne(a => a.Id == selected.Id);
-                LoadAnimals();
+                if (MessageBox.Show($"Видалити {selected.Name}?", "Підтвердження", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                {
+                    _animals.DeleteOne(a => a.Id == selected.Id);
+                    LoadAnimals();
+                }
             }
             else
             {
-                MessageBox.Show("Select an animal to delete.");
+                MessageBox.Show("Оберіть тварину для видалення.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 

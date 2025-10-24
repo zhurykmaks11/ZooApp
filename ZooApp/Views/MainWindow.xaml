@@ -1,7 +1,7 @@
 ﻿<Window x:Class="ZooApp.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="ZooApp" Height="400" Width="600"
+        Title="ZooApp" Height="600" Width="600"
         WindowStartupLocation="CenterScreen">
     <Grid>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">

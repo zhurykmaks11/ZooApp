@@ -11,6 +11,7 @@
 
         <!-- Панель кнопок -->
         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="⬅ Back" Width="100" Margin="5" Click="Back_Click"/>
             <Button Content="➕ Add" Width="100" Margin="5" Click="Add_Click"/>
             <Button Content="✏️ Edit" Width="100" Margin="5" Click="Edit_Click"/>
             <Button Content="❌ Delete" Width="100" Margin="5" Click="Delete_Click"/>

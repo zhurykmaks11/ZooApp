@@ -62,8 +62,9 @@ namespace ZooApp.Views
 
         private void Animals_Click(object sender, RoutedEventArgs e)
         {
-            var win = new AnimalsWindow();
+            var win = new AnimalsWindow(_role);
             win.Show();
+            this.Close();
         }
 
         private void Feeding_Click(object sender, RoutedEventArgs e)

@@ -1,21 +1,42 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System;
+using System.Collections.Generic;
 
-namespace ZooApp.Models;
-public class MedicalRecord
+namespace ZooApp.Models
 {
-    [BsonId]
-    public ObjectId Id { get; set; }
-    public ObjectId AnimalId { get; set; }
-    public List<Checkup> Checkups { get; set; }
-}
+    public class MedicalRecord
+    {
+        [BsonId]
+        public ObjectId Id { get; set; }
 
-public class Checkup
-{
-    public DateTime Date { get; set; }
-    public double Weight { get; set; }
-    public double Height { get; set; }
-    public List<string> Vaccinations { get; set; }
-    public List<string> Illnesses { get; set; }
-    public string Treatment { get; set; }
+        // ✅ Використовуємо string, щоб не було конфліктів із Animal.Id
+        [BsonElement("animalId")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string AnimalId { get; set; }
+
+        [BsonElement("checkups")]
+        public List<Checkup> Checkups { get; set; } = new();
+    }
+
+    public class Checkup
+    {
+        [BsonElement("date")]
+        public DateTime Date { get; set; }
+
+        [BsonElement("weight")]
+        public double Weight { get; set; }
+
+        [BsonElement("height")]
+        public double Height { get; set; }
+
+        [BsonElement("vaccinations")]
+        public List<string> Vaccinations { get; set; } = new();
+
+        [BsonElement("illnesses")]
+        public List<string> Illnesses { get; set; } = new();
+
+        [BsonElement("treatment")]
+        public string Treatment { get; set; } = string.Empty;
+    }
 }

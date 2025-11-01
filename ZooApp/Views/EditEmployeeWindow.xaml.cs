@@ -2,9 +2,9 @@
 
 namespace ZooApp.Views;
 
-public partial class EmployeesWindow : Window
+public partial class EditEmployeeWindow : Window
 {
-    public EmployeesWindow()
+    public EditEmployeeWindow()
     {
         InitializeComponent();
     }

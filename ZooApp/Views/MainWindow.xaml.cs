@@ -76,7 +76,7 @@ namespace ZooApp.Views
 
         private void Medical_Click(object sender, RoutedEventArgs e)
         {
-            var win = new MedicalWindow();
+            var win = new MedicalWindow(_role);
             win.Show();
             this.Close();
         }
@@ -90,7 +90,7 @@ namespace ZooApp.Views
 
         private void Employees_Click(object sender, RoutedEventArgs e)
         {
-            var win = new EmployeesWindow();
+            var win = new EmployeeWindow(_role);
             win.Show();
             this.Close();
         }

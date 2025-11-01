@@ -1,5 +1,6 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
+using System.Collections.Generic;
+using System.Linq;
 using ZooApp.Data;
 using ZooApp.Models;
 
@@ -14,29 +15,26 @@ namespace ZooApp.Services
             _employees = context.Employees;
         }
 
-        // ➕ Додати працівника
-        public void AddEmployee(Employee employee)
+        public List<Employee> GetAllEmployees() =>
+            _employees.Find(_ => true).ToList();
+
+        public void AddEmployee(Employee emp) =>
+            _employees.InsertOne(emp);
+
+        public void DeleteEmployee(string id) =>
+            _employees.DeleteOne(e => e.Id == id);
+
+        public List<Employee> Search(string keyword)
         {
-            _employees.InsertOne(employee);
+            keyword = keyword.ToLower();
+            return _employees.Find(e =>
+                e.FullName.ToLower().Contains(keyword) ||
+                e.Category.ToLower().Contains(keyword) ||
+                e.Gender.ToLower().Contains(keyword)
+            ).ToList();
         }
 
-        // 🔍 Отримати працівника по імені
-        public Employee GetByName(string fullName)
-        {
-            return _employees.Find(e => e.FullName == fullName).FirstOrDefault();
-        }
-
-        // 📃 Усі працівники
-        public List<Employee> GetAll()
-        {
-            return _employees.Find(_ => true).ToList();
-        }
-
-        // 📌 Призначити тварину під опіку
-        public void AssignAnimal(ObjectId employeeId, ObjectId animalId)
-        {
-            var update = Builders<Employee>.Update.AddToSet(e => e.AnimalsUnderCare, animalId);
-            _employees.UpdateOne(e => e.Id == employeeId, update);
-        }
+        public List<Employee> FilterByRole(string role) =>
+            _employees.Find(e => e.Category.ToLower() == role.ToLower()).ToList();
     }
 }

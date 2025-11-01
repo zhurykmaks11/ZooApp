@@ -1,18 +1,35 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System;
+using System.Collections.Generic;
 
-namespace ZooApp.Models;
-
-public class Employee
+namespace ZooApp.Models
 {
-    [BsonId]
-    public ObjectId Id { get; set; }
-    public string FullName { get; set; }
-    public string Category { get; set; } // ветеринар, дресирувальник, прибиральник тощо
-    public DateTime BirthDate { get; set; }
-    public string Gender { get; set; }
-    public double Salary { get; set; }
-    public DateTime WorkStartDate { get; set; }
+    public class Employee
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
 
-    public List<ObjectId> AnimalsUnderCare { get; set; }
+        [BsonElement("fullName")]
+        public string FullName { get; set; }
+
+        [BsonElement("category")]
+        public string Category { get; set; } // ветеринар, прибиральник, дресирувальник...
+
+        [BsonElement("gender")]
+        public string Gender { get; set; }
+
+        [BsonElement("birthDate")]
+        public DateTime BirthDate { get; set; }
+
+        [BsonElement("workStartDate")]
+        public DateTime WorkStartDate { get; set; }
+
+        [BsonElement("salary")]
+        public double Salary { get; set; }
+
+        [BsonElement("animalsUnderCare")]
+        public List<string> AnimalsUnderCare { get; set; } = new();
+    }
 }

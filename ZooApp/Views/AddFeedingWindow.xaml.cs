@@ -5,6 +5,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ZooApp.Models;
 using System.Windows.Input;
+using MongoDB.Driver;
+using ZooApp.Data;
 
 namespace ZooApp.Views
 {
@@ -15,15 +17,30 @@ namespace ZooApp.Views
         public AddFeedingWindow()
         {
             InitializeComponent();
-        }
+            LoadAnimals();
 
+            FeedingTimeBox.Text = DateTime.Now.ToString("HH:mm");
+        }
+        private void LoadAnimals()
+        {
+            try
+            {
+                var context = new MongoDbContext("mongodb://localhost:27017", "test");
+                var animals = context.Animals.Find(_ => true).ToList();
+                AnimalComboBox.ItemsSource = animals;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading animals: {ex.Message}");
+            }
+        }
+        
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            // 🧩 Перевірка на пусті поля
-            if (string.IsNullOrWhiteSpace(AnimalNameBox.Text))
+            if (AnimalComboBox.SelectedItem == null)
             {
-                AnimalNameBox.BorderBrush = Brushes.Red;
-                MessageBox.Show("Animal name is required.");
+                MessageBox.Show("Please select an animal.");
+                AnimalComboBox.BorderBrush = Brushes.Red;
                 return;
             }
 
@@ -37,38 +54,40 @@ namespace ZooApp.Views
             if (!double.TryParse(QuantityBox.Text, out double qty) || qty <= 0 || qty > 1000)
             {
                 QuantityBox.BorderBrush = Brushes.Red;
-                MessageBox.Show("Quantity must be between 0 and 1000 kg.");
+                MessageBox.Show("Quantity must be between 0.1 and 1000 kg.");
                 return;
             }
 
-            if (!TimeSpan.TryParse(FeedingTimeBox.Text, out var time))
+            if (!TimeSpan.TryParse(FeedingTimeBox.Text, out _))
             {
                 FeedingTimeBox.BorderBrush = Brushes.Red;
-                MessageBox.Show("Feeding time must be in format HH:mm (e.g., 10:30).");
+                MessageBox.Show("Feeding time must be in format HH:mm (e.g. 10:30).");
                 return;
             }
 
-            var validSeasons = new[] { "зима", "весна", "літо", "осінь", "all year" };
-            if (!validSeasons.Contains(SeasonBox.Text.Trim().ToLower()))
+            if (SeasonComboBox.SelectedItem == null)
             {
-                SeasonBox.BorderBrush = Brushes.Red;
-                MessageBox.Show("Season must be one of: зима, весна, літо, осінь, all year.");
+                SeasonComboBox.BorderBrush = Brushes.Red;
+                MessageBox.Show("Please select a season.");
                 return;
             }
+
+            var animal = (Animal)AnimalComboBox.SelectedItem;
+            var season = ((ComboBoxItem)SeasonComboBox.SelectedItem).Content.ToString();
 
             Feeding = new FeedingSchedule
             {
-                AnimalName = AnimalNameBox.Text.Trim(),
+                AnimalId = animal.Id,
+                AnimalName = animal.Name,
                 FeedType = FeedTypeBox.Text.Trim(),
                 QuantityKg = qty,
                 FeedingTime = FeedingTimeBox.Text.Trim(),
-                Season = SeasonBox.Text.Trim()
+                Season = season
             };
 
             DialogResult = true;
             Close();
         }
-
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {

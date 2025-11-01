@@ -3,7 +3,7 @@ using System.Windows;
 using MongoDB.Driver;
 using ZooApp.Data;
 using ZooApp.Models;
-
+using System.Windows.Media;
 namespace ZooApp.Views
 {
     public partial class AnimalsWindow : Window
@@ -101,5 +101,24 @@ namespace ZooApp.Views
             var list = _animals.Find(a => a.Name.ToLower().Contains(query)).ToList();
             AnimalsGrid.ItemsSource = list;
         }
+        private void SearchBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (SearchBox.Text == "Search by name...")
+            {
+                SearchBox.Text = "";
+                SearchBox.Foreground = Brushes.Black;
+            }
+        }
+
+        private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(SearchBox.Text))
+            {
+                SearchBox.Text = "Search by name...";
+                SearchBox.Foreground = Brushes.Gray;
+            }
+        }
+        
+
     }
 }

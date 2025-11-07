@@ -1,0 +1,46 @@
+﻿<Window x:Class="ZooApp.Views.AddCageWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add Cage" Height="500" Width="400" WindowStartupLocation="CenterScreen">
+
+    <Grid Margin="15">
+        <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+
+            <TextBlock Text="Add New Cage" FontSize="20" FontWeight="Bold" Margin="0 0 0 15" HorizontalAlignment="Center"/>
+
+            <TextBlock Text="Location:"/>
+            <TextBox x:Name="LocationBox" Height="28"/>
+
+            <TextBlock Text="Size:"/>
+            <TextBox x:Name="SizeBox" Height="28"/>
+
+            <TextBlock Text="Heated:"/>
+            <ComboBox x:Name="HeatedBox" Height="28">
+                <ComboBoxItem Content="Yes"/>
+                <ComboBoxItem Content="No"/>
+            </ComboBox>
+
+            <TextBlock Text="Capacity:"/>
+            <TextBox x:Name="CapacityBox" Height="28"/>
+
+
+            <!-- ✅ NEW FIELD: Compatible species -->
+            <TextBlock Text="Compatible species (comma separated):"/>
+            <TextBox x:Name="SpeciesBox" Height="28"/>
+
+
+            <!-- ✅ NEW FIELD: Allowed Types -->
+            <TextBlock Text="Allowed Animal Types:"/>
+            <ComboBox x:Name="TypesBox" Height="28" IsEditable="False">
+                <ComboBoxItem Content="herbivore"/>
+                <ComboBoxItem Content="predator"/>
+                <ComboBoxItem Content="both"/>
+            </ComboBox>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 15 0 0">
+                <Button Content="💾 Save" Width="100" Margin="5" Click="Save_Click"/>
+                <Button Content="❌ Cancel" Width="100" Margin="5" Click="Cancel_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

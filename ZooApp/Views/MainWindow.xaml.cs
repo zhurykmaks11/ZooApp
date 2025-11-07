@@ -107,5 +107,13 @@ namespace ZooApp.Views
             var win = new AddUserWindow();
             win.ShowDialog();
         }
+        
+        private void Cages_Click(object sender, RoutedEventArgs e)
+        {
+            var cageWindow = new CageWindow(_role);
+            cageWindow.Show();
+            this.Close();
+        }
+
     }
 }

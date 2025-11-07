@@ -32,9 +32,11 @@ namespace ZooApp.Views
             var window = new AddEditAnimalWindow(_role);
             if (window.ShowDialog() == true)
             {
+                window.Animal.Id = null; // ✅ генеруємо новий _id
                 _animals.InsertOne(window.Animal);
                 LoadAnimals();
             }
+
         }
 
         private void Edit_Click(object sender, RoutedEventArgs e)

@@ -18,20 +18,28 @@ namespace ZooApp.Services
         public List<Employee> GetAllEmployees() =>
             _employees.Find(_ => true).ToList();
 
-        public void AddEmployee(Employee emp) =>
-            _employees.InsertOne(emp);
-
-        public void DeleteEmployee(string id) =>
-            _employees.DeleteOne(e => e.Id == id);
-
-        public List<Employee> Search(string keyword)
+        public void AddEmployee(Employee employee) =>
+            _employees.InsertOne(employee);
+        
+        
+        public void UpdateEmployee(Employee employee)
         {
-            keyword = keyword.ToLower();
+            var filter = Builders<Employee>.Filter.Eq(e => e.Id, employee.Id);
+            _employees.ReplaceOne(filter, employee);
+        }
+        public void DeleteEmployee(string id)
+        {
+            var filter = Builders<Employee>.Filter.Eq(e => e.Id, id);
+            _employees.DeleteOne(filter);
+        }
+
+        // 🔍 Пошук за категорією або ім'ям
+        public List<Employee> SearchEmployees(string query)
+        {
+            query = query.ToLower();
             return _employees.Find(e =>
-                e.FullName.ToLower().Contains(keyword) ||
-                e.Category.ToLower().Contains(keyword) ||
-                e.Gender.ToLower().Contains(keyword)
-            ).ToList();
+                e.FullName.ToLower().Contains(query) ||
+                e.Category.ToLower().Contains(query)).ToList();
         }
 
         public List<Employee> FilterByRole(string role) =>

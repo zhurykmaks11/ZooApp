@@ -1,0 +1,25 @@
+﻿<Window x:Class="ZooApp.Views.AssignAnimalToCageWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Assign Animal to Cage"
+        Height="300"
+        Width="400"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid Margin="20">
+        <StackPanel VerticalAlignment="Center" Margin="10">
+
+            <TextBlock Text="Select Animal:"/>
+            <ComboBox x:Name="AnimalBox" Height="28" Margin="0,5"/>
+
+            <TextBlock Text="Select Cage:"/>
+            <ComboBox x:Name="CageBox" Height="28" Margin="0,5"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+                <Button Content="✅ Assign" Width="120" Margin="5" Click="Assign_Click"/>
+                <Button Content="❌ Cancel" Width="120" Margin="5" Click="Cancel_Click"/>
+            </StackPanel>
+
+        </StackPanel>
+    </Grid>
+</Window>

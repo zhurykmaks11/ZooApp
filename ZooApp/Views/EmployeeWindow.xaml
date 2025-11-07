@@ -1,8 +1,8 @@
 ﻿<Window x:Class="ZooApp.Views.EmployeeWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Employees"
-        Height="500"
+        Title="Employee Management"
+        Height="550"
         Width="900"
         WindowStartupLocation="CenterScreen">
 
@@ -12,32 +12,97 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Панель керування -->
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-            <Button x:Name="AddButton" Content="➕ Add Employee" Width="130" Height="32" Margin="5" Click="Add_Click"/>
-            <Button x:Name="DeleteButton" Content="❌ Delete" Width="100" Height="32" Margin="5" Click="Delete_Click"/>
-            <TextBox x:Name="SearchBox" Width="200" Height="32" Margin="10,0" Text="Search..." 
-                     Foreground="Gray" GotFocus="SearchBox_GotFocus" LostFocus="SearchBox_LostFocus"/>
-            <Button Content="🔍 Find" Width="90" Height="32" Margin="5" Click="Find_Click"/>
-            <Button Content="⬅ Back" Width="100" Height="32" Margin="5" Click="Back_Click"/>
-        </StackPanel>
+        <!-- 🔍 Панель керування -->
+        <Grid Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Таблиця -->
+            <Button x:Name="AddButton" Grid.Column="0"
+                    Content="➕ Add" Width="100" Height="32" Margin="5"
+                    Click="Add_Click"/>
+
+            <Button x:Name="EditButton" Grid.Column="1"
+                    Content="✏️ Edit" Width="100" Height="32" Margin="5"
+                    Click="Edit_Click"/>
+
+            <Button x:Name="DeleteButton" Grid.Column="2"
+                    Content="❌ Delete" Width="100" Height="32" Margin="5"
+                    Click="Delete_Click"/>
+
+            <TextBox Grid.Column="3"
+                     x:Name="SearchBox"
+                     Height="32"
+                     VerticalContentAlignment="Center"
+                     Margin="10,0"
+                     Text="Search by name..."
+                     Foreground="Gray"
+                     GotFocus="SearchBox_GotFocus"
+                     LostFocus="SearchBox_LostFocus"/>
+
+            <ComboBox x:Name="CategoryFilter"
+                      Grid.Column="4"
+                      Height="32"
+                      Margin="5">
+                <ComboBoxItem Content="All"/>
+                <ComboBoxItem Content="ветеринар"/>
+                <ComboBoxItem Content="прибиральник"/>
+                <ComboBoxItem Content="дресирувальник"/>
+                <ComboBoxItem Content="будівельник"/>
+                <ComboBoxItem Content="адміністрація"/>
+            </ComboBox>
+
+            <ComboBox x:Name="GenderFilter"
+                      Grid.Column="5"
+                      Height="32"
+                      Margin="5">
+                <ComboBoxItem Content="All"/>
+                <ComboBoxItem Content="male"/>
+                <ComboBoxItem Content="female"/>
+            </ComboBox>
+
+            <Button Grid.Column="6"
+                    Content="🔍 Find"
+                    Width="100"
+                    Height="32"
+                    Margin="5"
+                    Click="Find_Click"/>
+
+            <Button Grid.Column="7"
+                    Content="⬅ Back"
+                    Width="100"
+                    Height="32"
+                    Margin="5"
+                    Click="Back_Click"/>
+        </Grid>
+
+        <!-- 📋 Таблиця співробітників -->
         <DataGrid x:Name="EmployeeGrid"
                   Grid.Row="1"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   AlternatingRowBackground="LightGray"
-                  HeadersVisibility="Column"
-                  RowHeight="28">
+                  GridLinesVisibility="All"
+                  CanUserAddRows="False"
+                  RowHeight="30"
+                  FontSize="14">
+
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" Binding="{Binding FullName}" Width="150"/>
-                <DataGridTextColumn Header="Category" Binding="{Binding Role}" Width="130"/>
+                <DataGridTextColumn Header="Full Name" Binding="{Binding FullName}" Width="200"/>
+                <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="150"/>
                 <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="100"/>
                 <DataGridTextColumn Header="Birth Date" Binding="{Binding BirthDate, StringFormat=\{0:dd.MM.yyyy\}}" Width="120"/>
-                <DataGridTextColumn Header="Hire Date" Binding="{Binding HireDate, StringFormat=\{0:dd.MM.yyyy\}}" Width="120"/>
+                <DataGridTextColumn Header="Hire Date" Binding="{Binding WorkStartDate, StringFormat=\{0:dd.MM.yyyy\}}" Width="120"/>
                 <DataGridTextColumn Header="Salary" Binding="{Binding Salary}" Width="100"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
 </Window>
+

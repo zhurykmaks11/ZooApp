@@ -34,7 +34,7 @@ namespace ZooApp.Views
             var animals = context.Animals.Find(_ => true).ToList();
 
             AnimalComboBox.ItemsSource = animals;
-            AnimalComboBox.DisplayMemberPath = "Name";
+            AnimalComboBox.DisplayMemberPath = "DisplayName";
             AnimalComboBox.SelectedValuePath = "Id";
         }
 

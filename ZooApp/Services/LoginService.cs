@@ -9,23 +9,36 @@ namespace ZooApp.Services
     public class LoginService
     {
         private readonly MongoDbContext _context;
+        private readonly IMongoCollection<KeyUser> _users;
 
         public LoginService(MongoDbContext context)
         {
             _context = context;
+            _users = context.KeyUsers; // ⬅ ВАЖЛИВО
         }
 
         public KeyUser Authenticate(string username, string password)
         {
-            // Знаходимо користувача по логіну
-            var user = _context.KeyUsers.Find(u => u.Login == username).FirstOrDefault();
+            var user = _users.Find(u => u.Login == username).FirstOrDefault();
 
             if (user == null)
                 return null;
 
-            // Хешуємо введений пароль і порівнюємо
             var hashedPassword = HashPassword(password);
             return user.Password == hashedPassword ? user : null;
+        }
+
+        public bool ResetPassword(string login, string newPassword)
+        {
+            var user = _users.Find(u => u.Login == login).FirstOrDefault();
+
+            if (user == null)
+                return false;
+
+            user.Password = HashPassword(newPassword);
+
+            _users.ReplaceOne(u => u.Id == user.Id, user);
+            return true;
         }
 
         public static string HashPassword(string password)
@@ -36,14 +49,13 @@ namespace ZooApp.Services
                 return BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
             }
         }
+
         public bool AddUser(string login, string password, string role)
         {
-            // Перевіряємо, чи такий користувач вже існує
-            var existing = _context.KeyUsers.Find(u => u.Login == login).FirstOrDefault();
-            if (existing != null)
+            var exists = _users.Find(u => u.Login == login).FirstOrDefault();
+            if (exists != null)
                 return false;
 
-            // Хешуємо пароль
             var hashed = HashPassword(password);
 
             var user = new KeyUser
@@ -53,9 +65,8 @@ namespace ZooApp.Services
                 Role = role
             };
 
-            _context.KeyUsers.InsertOne(user);
+            _users.InsertOne(user);
             return true;
         }
-
     }
 }

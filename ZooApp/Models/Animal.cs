@@ -4,6 +4,7 @@ using System;
 
 namespace ZooApp.Models
 {
+    [BsonIgnoreExtraElements]   // ⬅ ДОДАТИ
     public class Animal
     {
         [BsonId]
@@ -37,6 +38,18 @@ namespace ZooApp.Models
         [BsonElement("cageId")]
         [BsonRepresentation(BsonType.ObjectId)]
         public string CageId { get; set; }
+        
+        [BsonIgnore]
+        public string DisplayName
+        {
+            get
+            {
+                string smallId = !string.IsNullOrEmpty(Id) ? Id.Substring(0, 6) : "new";
+                string year = BirthDate != DateTime.MinValue ? BirthDate.Year.ToString() : "unknown";
+                return $"[{smallId}]{Name} ({Species}, {Gender}, {year})";
+            }
+        }
+
 
         [BsonElement("feedingScheduleId")]
         [BsonRepresentation(BsonType.ObjectId)]

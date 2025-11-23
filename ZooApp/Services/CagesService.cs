@@ -18,54 +18,31 @@ namespace ZooApp.Services
             _animals = context.Animals;
         }
 
-        // ✅ Отримати всі клітки
+        // -------------------------
+        // BASIC CRUD
+        // -------------------------
         public List<Cage> GetAllCages()
         {
             return _cages.Find(_ => true).ToList();
         }
 
-        // ✅ Додати клітку
+        public Cage GetCage(string cageId)
+        {
+            if (!ObjectId.TryParse(cageId, out ObjectId id))
+                return null;
+
+            return _cages.Find(c => c.Id == id).FirstOrDefault();
+        }
+
         public void AddCage(Cage cage)
         {
             _cages.InsertOne(cage);
         }
 
-        // ✅ Перевірити чи тварина може бути поселена
-        private bool CanAssignAnimal(Cage cage, Animal animal)
-        {
-            // 1) Перевірка місця
-            if (cage.Animals.Count >= cage.Capacity)
-                return false;
-
-            var allAnimals = _animals.Find(_ => true).ToList();
-            
-            var cageAnimals = allAnimals.Where(a =>
-                !string.IsNullOrEmpty(a.Id) &&
-                cage.Animals.Contains(ObjectId.Parse(a.Id))
-            ).ToList();
-
-
-            // 2) Хижак + травоїдний — заборонено
-            if (animal.Type == "predator" && cageAnimals.Any(a => a.Type == "herbivore"))
-                return false;
-
-            if (animal.Type == "herbivore" && cageAnimals.Any(a => a.Type == "predator"))
-                return false;
-
-            // перевірка видів без регістру + часткове входження
-            bool speciesMatch = cage.CompatibleSpecies
-                .Any(s => animal.Species.ToLower().Contains(s.ToLower()));
-
-            if (!speciesMatch)
-                return false;
-
-
-            return true;
-        }
-        
         public void UpdateCage(string cageId, string location, string size, int capacity, List<string> species)
         {
-            var oid = ObjectId.Parse(cageId);
+            if (!ObjectId.TryParse(cageId, out ObjectId oid))
+                return;
 
             var update = Builders<Cage>.Update
                 .Set(c => c.Location, location)
@@ -76,56 +53,103 @@ namespace ZooApp.Services
             _cages.UpdateOne(c => c.Id == oid, update);
         }
 
-        public Cage GetCageById(string cageId)
-        {
-            var oid = ObjectId.Parse(cageId);
-            return _cages.Find(c => c.Id == oid).FirstOrDefault();
-        }
-        
         public void DeleteCage(string cageId)
         {
-            var oid = ObjectId.Parse(cageId);
+            if (!ObjectId.TryParse(cageId, out ObjectId oid))
+                return;
+
             _cages.DeleteOne(c => c.Id == oid);
         }
 
+        // -------------------------
+        // SAFE CHECK BEFORE MOVING
+        // -------------------------
+        public bool CanAssignAnimalSafe(string cageId, Animal animal)
+        {
+            if (!ObjectId.TryParse(cageId, out ObjectId cageObjId))
+                return false;
+
+            var cage = _cages.Find(c => c.Id == cageObjId).FirstOrDefault();
+            if (cage == null) return false;
+
+            // 1. Capacity
+            if (cage.Animals.Count >= cage.Capacity)
+                return false;
+
+            // 2. Species compatibility (case-insensitive)
+            if (cage.CompatibleSpecies.Count > 0 &&
+                !cage.CompatibleSpecies.Any(s =>
+                    s.ToLower().Trim() == animal.Species.ToLower().Trim()))
+                return false;
+
+            // 3. Type rule
+            if (cage.AllowedTypes.Count > 0 &&
+                !cage.AllowedTypes.Contains(animal.Type))
+                return false;
+
+            // 4. Fetch animals in cage
+            var animalsInCage = _animals.Find(a =>
+                a.CageId == cageId).ToList();
+
+            // 5. Predator-herbivore conflict
+            if (animal.Type == "predator" && animalsInCage.Any(a => a.Type == "herbivore"))
+                return false;
+
+            if (animal.Type == "herbivore" && animalsInCage.Any(a => a.Type == "predator"))
+                return false;
+
+            return true;
+        }
+
+        // -------------------------
+        // MOVE ANIMAL BETWEEN CAGES
+        // -------------------------
         public bool MoveAnimal(string animalId, string newCageId)
         {
             var animal = _animals.Find(a => a.Id == animalId).FirstOrDefault();
-            if (animal == null) return false;
-
-            string oldCageId = animal.CageId;
-
-            // Якщо тварина вже в цій клітці — нічого не робимо
-            if (oldCageId == newCageId)
+            if (animal == null)
                 return false;
 
-            // 1️⃣ Знімаємо тварину зі старої клітки
-            if (oldCageId != null)
+            string oldCage = animal.CageId;
+
+            // No change
+            if (oldCage == newCageId)
+                return true;
+
+            // Check BEFORE removal from old cage
+            if (!string.IsNullOrEmpty(newCageId) &&
+                !CanAssignAnimalSafe(newCageId, animal))
             {
-                RemoveAnimalFromCage(animalId, oldCageId);
+                return false;
             }
 
-            // 2️⃣ Пробуємо поселити в нову
-            bool success = AddAnimalToCage(animalId, newCageId);
+            // ✔ Remove from old cage (if existed)
+            if (!string.IsNullOrEmpty(oldCage))
+                RemoveAnimalFromCage(animalId, oldCage);
 
-            // Якщо не вийшло — повертаємо назад в стару клітку
-            if (!success)
+            // ✔ Add to new cage
+            if (!string.IsNullOrEmpty(newCageId))
             {
-                if (oldCageId != null)
-                    AddAnimalToCage(animalId, oldCageId);
+                if (!AddAnimalToCage(animalId, newCageId))
+                {
+                    // If fail → return to old cage
+                    if (!string.IsNullOrEmpty(oldCage))
+                        AddAnimalToCage(animalId, oldCage);
 
-                return false;
+                    return false;
+                }
             }
 
             return true;
         }
 
-
-        // ✅ Додати тварину в клітку
+        // -------------------------
+        // ASSIGN TO CAGE
+        // -------------------------
         public bool AddAnimalToCage(string animalId, string cageId)
         {
-            var cageObjId = ObjectId.Parse(cageId);
-            var animalObjId = ObjectId.Parse(animalId);
+            if (!ObjectId.TryParse(animalId, out ObjectId animalObjId)) return false;
+            if (!ObjectId.TryParse(cageId, out ObjectId cageObjId)) return false;
 
             var cage = _cages.Find(c => c.Id == cageObjId).FirstOrDefault();
             var animal = _animals.Find(a => a.Id == animalId).FirstOrDefault();
@@ -133,25 +157,28 @@ namespace ZooApp.Services
             if (cage == null || animal == null)
                 return false;
 
-            if (!CanAssignAnimal(cage, animal))
+            // Final check using unified logic
+            if (!CanAssignAnimalSafe(cageId, animal))
                 return false;
 
-            // Додаємо тварину
-            var update = Builders<Cage>.Update.Push(c => c.Animals, animalObjId);
-            _cages.UpdateOne(c => c.Id == cageObjId, update);
+            // Add animal reference
+            var updateCage = Builders<Cage>.Update.Push(c => c.Animals, animalObjId);
+            _cages.UpdateOne(c => c.Id == cageObjId, updateCage);
 
-            // Оновлюємо тварину (зв'язуємо)
+            // Link animal to cage
             var updateAnimal = Builders<Animal>.Update.Set(a => a.CageId, cageId);
             _animals.UpdateOne(a => a.Id == animalId, updateAnimal);
 
             return true;
         }
 
-        // ✅ Видалити тварину з клітки
+        // -------------------------
+        // REMOVE FROM CAGE
+        // -------------------------
         public void RemoveAnimalFromCage(string animalId, string cageId)
         {
-            var cageObjId = ObjectId.Parse(cageId);
-            var animalObjId = ObjectId.Parse(animalId);
+            if (!ObjectId.TryParse(animalId, out ObjectId animalObjId)) return;
+            if (!ObjectId.TryParse(cageId, out ObjectId cageObjId)) return;
 
             var update = Builders<Cage>.Update.Pull(c => c.Animals, animalObjId);
             _cages.UpdateOne(c => c.Id == cageObjId, update);

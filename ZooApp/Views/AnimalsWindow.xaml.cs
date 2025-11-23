@@ -10,7 +10,7 @@ namespace ZooApp.Views
     {
         private readonly IMongoCollection<Animal> _animals;
         private readonly string _role;
-
+        private readonly string _username;
         public AnimalsWindow(string role)
         {
             InitializeComponent();
@@ -69,7 +69,7 @@ namespace ZooApp.Views
             }
 
             // 🆕 Якщо ні — створюємо нове головне меню з поточною роллю
-            new MainWindow(_role).Show();
+            new MainWindow(_role, _username).Show();
             this.Close();
         }
 

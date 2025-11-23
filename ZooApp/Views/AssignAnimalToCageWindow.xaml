@@ -10,7 +10,9 @@
         <StackPanel VerticalAlignment="Center" Margin="10">
 
             <TextBlock Text="Select Animal:"/>
-            <ComboBox x:Name="AnimalBox" Height="28" Margin="0,5"/>
+            <ComboBox x:Name="AnimalBox" Height="28" Margin="0,5"
+                      DisplayMemberPath="DisplayName"
+                      SelectedValuePath="Id"/>
 
             <TextBlock Text="Select Cage:"/>
             <ComboBox x:Name="CageBox" Height="28" Margin="0,5"/>

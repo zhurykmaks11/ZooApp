@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Employee Management"
         Height="550"
-        Width="900"
+        Width="1100"
         WindowStartupLocation="CenterScreen">
 
     <Grid Margin="10">

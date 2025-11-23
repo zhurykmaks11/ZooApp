@@ -1,8 +1,85 @@
 ﻿<Window x:Class="ZooApp.Views.ExchangeWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Exchange" Height="400" Width="600">
-    <Grid>
-        <TextBlock Text="🔄 Zoo Exchange" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="22"/>
+        Title="Zoo Exchanges"
+        Height="520"
+        Width="1100"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- BUTTON PANEL -->
+        <Grid Grid.Row="0" Margin="0 0 0 10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/> <!-- Add -->
+                <ColumnDefinition Width="Auto"/> <!-- Edit -->
+                <ColumnDefinition Width="Auto"/> <!-- Delete -->
+                <ColumnDefinition Width="200"/> <!-- Search -->
+                <ColumnDefinition Width="Auto"/> <!-- Find -->
+                <ColumnDefinition Width="Auto"/> <!-- Back -->
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="AddButton"
+                    Grid.Column="0"
+                    Content="➕ Add"
+                    Width="100"
+                    Height="32"
+                    Margin="5"
+                    Click="Add_Click"/>
+
+            <Button x:Name="EditButton"
+                    Grid.Column="1"
+                    Content="✏ Edit"
+                    Width="100"
+                    Height="32"
+                    Margin="5"
+                    Click="Edit_Click"/>
+
+            <Button x:Name="DeleteButton"
+                    Grid.Column="2"
+                    Content="❌ Delete"
+                    Width="100"
+                    Height="32"
+                    Margin="5"
+                    Click="Delete_Click"/>
+
+            <TextBox Grid.Column="3" 
+                     x:Name="SearchBox"
+                     Height="32"
+                     Margin="10 0"
+                     Text="Search..."
+                     Foreground="Gray"
+                     GotFocus="Search_GotFocus"
+                     LostFocus="Search_LostFocus"/>
+
+            <Button Grid.Column="4" Content="🔍 Find" Width="100" Height="32" Margin="5" Click="Find_Click"/>
+
+            <Button Grid.Column="5" Content="⬅ Back" Width="100" Height="32" Margin="5" Click="Back_Click"/>
+
+        </Grid>
+
+        <!-- TABLE -->
+        <DataGrid x:Name="ExchangeGrid"
+                  Grid.Row="1"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  AlternatingRowBackground="LightGray"
+                  GridLinesVisibility="All"
+                  FontSize="14">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Animal" Binding="{Binding AnimalName}" Width="200"/>
+                <DataGridTextColumn Header="Date" Binding="{Binding ExchangeDate}" Width="150"/>
+                <DataGridTextColumn Header="Type" Binding="{Binding ExchangeType}" Width="120"/>
+                <DataGridTextColumn Header="Other Zoo" Binding="{Binding OtherZoo}" Width="200"/>
+                <DataGridTextColumn Header="Reason" Binding="{Binding Reason}" Width="300"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
     </Grid>
 </Window>

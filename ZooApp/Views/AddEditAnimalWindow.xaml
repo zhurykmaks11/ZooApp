@@ -46,7 +46,7 @@
             <ComboBox x:Name="CageBox"
                       Margin="0,5,0,10"
                       DisplayMemberPath="Location"
-                      SelectedValuePath="Id"/>
+                      SelectedValuePath="IdString"/>
 
             <TextBlock FontSize="10" Foreground="Gray" Text="*You can assign cage later in Cages menu"/>
 

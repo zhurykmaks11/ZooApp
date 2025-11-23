@@ -9,12 +9,12 @@ namespace ZooApp.Views
     {
         private readonly CagesService _cagesService;
         private readonly string _role;
-
+        private readonly string _username;
+        
         public CageWindow(string role)
         {
             InitializeComponent();
             _role = role;
-
             var context = new MongoDbContext("mongodb://localhost:27017", "test");
             _cagesService = new CagesService(context);
 
@@ -48,7 +48,7 @@ namespace ZooApp.Views
             string cageId = row.Id.ToString();
 
             // Перевірка на тварин
-            var cage = _cagesService.GetCageById(cageId);
+            var cage = _cagesService.GetCage(cageId);
             if (cage.Animals.Count > 0)
             {
                 MessageBox.Show("❌ Cannot delete cage — animals still inside!");
@@ -82,7 +82,7 @@ namespace ZooApp.Views
 
         private void AddCage_Click(object sender, RoutedEventArgs e)
         {
-            var win = new AddCageWindow();
+            var win = new AddCageWindow(_username);
             if (win.ShowDialog() == true)
                 LoadCages();
         }
@@ -119,7 +119,7 @@ namespace ZooApp.Views
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            new MainWindow(_role).Show();
+            new MainWindow(_role, _username).Show();
             this.Close();
         }
     }

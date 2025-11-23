@@ -8,6 +8,7 @@ namespace ZooApp.Models
     {
         [BsonId]
         public ObjectId Id { get; set; }
+        public string IdString => Id.ToString();
 
         [BsonElement("number")]
         public int Number { get; set; }

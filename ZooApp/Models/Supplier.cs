@@ -1,22 +1,32 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.Collections.Generic;
 
-namespace ZooApp.Models;
-
-public class Supplier
+namespace ZooApp.Models
 {
-    [BsonId]
-    public ObjectId Id { get; set; }
-    public string Name { get; set; }
-    public string Address { get; set; }
-    public string Phone { get; set; }
-    public List<string> FeedTypes { get; set; }
-    public List<Contract> Contracts { get; set; }
-}
+    public class Supplier
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
 
-public class Contract
-{
-    public ObjectId FeedId { get; set; }
-    public double Price { get; set; }
-    public DateTime Date { get; set; }
+        [BsonElement("name")]
+        public string Name { get; set; }
+
+        [BsonElement("address")]
+        public string Address { get; set; }
+
+        [BsonElement("phone")]
+        public string Phone { get; set; }
+
+        [BsonElement("feedTypes")]
+        public List<string> FeedTypes { get; set; } = new();
+
+        [BsonElement("contracts")]
+        public List<string> Contracts { get; set; } = new();
+
+        // 🟩 Для DataGrid (не зберігається в Mongo)
+        [BsonIgnore]
+        public string FeedTypesString => string.Join(", ", FeedTypes);
+    }
 }

@@ -27,7 +27,7 @@ namespace ZooApp.Views
         {
             var animals = _animals.Find(a => a.CageId == null).ToList();
             AnimalBox.ItemsSource = animals;
-            AnimalBox.DisplayMemberPath = "Name";
+            AnimalBox.DisplayMemberPath = "DisplayName";
             AnimalBox.SelectedValuePath = "Id";
 
             var cages = _cagesService.GetAllCages();

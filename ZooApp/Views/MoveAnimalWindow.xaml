@@ -16,7 +16,9 @@
                        HorizontalAlignment="Center"/>
 
             <TextBlock Text="Animal:"/>
-            <ComboBox x:Name="AnimalBox" Height="28"/>
+            <ComboBox x:Name="AnimalBox"  
+                      DisplayMemberPath="DisplayName"
+                      SelectedValuePath="Id"/>
 
             <TextBlock Text="New Cage:" Margin="0,10,0,0"/>
             <ComboBox x:Name="CageBox" Height="28"/>

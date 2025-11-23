@@ -28,6 +28,8 @@ namespace ZooApp.Views
                 var context = new MongoDbContext("mongodb://localhost:27017", "test");
                 var animals = context.Animals.Find(_ => true).ToList();
                 AnimalComboBox.ItemsSource = animals;
+                AnimalComboBox.DisplayMemberPath = "DisplayName";
+                AnimalComboBox.SelectedValuePath = "Id";
             }
             catch (Exception ex)
             {
@@ -99,7 +101,17 @@ namespace ZooApp.Views
         {
             e.Handled = !double.TryParse(e.Text, out _);
         }
-        
+        private void AnimalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (AnimalComboBox.SelectedItem is Animal animal)
+            {
+                if (animal.Type == "herbivore")
+                    FeedTypeBox.Text = "fruits";
+                else if (animal.Type == "predator")
+                    FeedTypeBox.Text = "meat";
+            }
+        }
+
         private void QuantityBox_PreviewExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             if (e.Command == ApplicationCommands.Paste)

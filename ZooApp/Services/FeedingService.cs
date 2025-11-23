@@ -25,11 +25,28 @@ namespace ZooApp.Services
             return _feedingCollection.Find(_ => true).ToList();
         }
 
-        // ✅ 2. Додати новий запис годування
         public void AddFeeding(FeedingSchedule schedule)
         {
-            _feedingCollection.InsertOne(schedule);
+            try
+            {
+                var exists = _feedingCollection.Find(f =>
+                    f.AnimalId == schedule.AnimalId &&
+                    f.FeedingTime == schedule.FeedingTime &&
+                    f.Season == schedule.Season).FirstOrDefault();
+
+                if (exists != null)
+                    throw new Exception("Feeding schedule for this animal and time already exists!");
+
+                _feedingCollection.InsertOne(schedule);
+            }
+            catch (Exception ex)
+            {
+                // Тут відловлюємо будь-яку помилку
+                throw new Exception($"Error adding feeding record: {ex.Message}");
+            }
         }
+
+
 
         // ✅ 3. Редагувати запис
         public void UpdateFeeding(FeedingSchedule updated)
@@ -105,7 +122,17 @@ namespace ZooApp.Services
                 .Distinct()
                 .ToList();
         }
-       
+        public int CleanupOrphanFeedings()
+        {
+            var animalIds = _animalsCollection.AsQueryable().Select(a => a.Id).ToList();
+            var orphaned = _feedingCollection.Find(f => !animalIds.Contains(f.AnimalId)).ToList();
+
+            foreach (var rec in orphaned)
+                _feedingCollection.DeleteOne(f => f.Id == rec.Id);
+
+            return orphaned.Count;
+        }
+
         
     }
 }

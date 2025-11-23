@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using ZooApp.Models;
@@ -12,11 +13,24 @@ namespace ZooApp.Views
     public partial class AddCageWindow : Window
     {
         private readonly CagesService _cageService;
+        private readonly LogService _log;
+        private readonly string _username;
 
-        public AddCageWindow()
+        private readonly Regex sizeRegex =
+            new Regex(@"^\s*\d{1,3}\s*[xX]\s*\d{1,3}\s*$");
+
+        public AddCageWindow(string username)
         {
             InitializeComponent();
-            _cageService = new CagesService(new MongoDbContext("mongodb://localhost:27017", "test"));
+
+            _username = username;
+
+            // ✔ ЄДИНИЙ КОНТЕКСТ
+            var context = new MongoDbContext("mongodb://localhost:27017", "test");
+
+            // ✔ СЕРВІСИ
+            _cageService = new CagesService(context);
+            _log = new LogService(context);
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
@@ -30,9 +44,16 @@ namespace ZooApp.Views
                 return;
             }
 
-            if (!int.TryParse(CapacityBox.Text, out int capacity))
+            // VALIDATE SIZE
+            if (!sizeRegex.IsMatch(SizeBox.Text))
             {
-                MessageBox.Show("Capacity must be a number!");
+                MessageBox.Show("❌ Size must be in format NNxNN (example: 50x30)", "Error");
+                return;
+            }
+
+            if (!int.TryParse(CapacityBox.Text, out int capacity) || capacity <= 0)
+            {
+                MessageBox.Show("Capacity must be a positive number!");
                 return;
             }
 
@@ -62,6 +83,9 @@ namespace ZooApp.Views
             };
 
             _cageService.AddCage(cage);
+
+            // ✔ ЛОГУВАННЯ
+            _log.Write(_username, "Add Cage", $"Location={cage.Location}, Size={cage.Size}, Capacity={cage.Capacity}");
 
             MessageBox.Show("✅ Cage added!");
             DialogResult = true;

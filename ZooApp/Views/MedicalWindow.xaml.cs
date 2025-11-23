@@ -14,7 +14,8 @@ namespace ZooApp.Views
     {
         private readonly string _role;
         private readonly MedicalService _medicalService;
-
+        private readonly string _username;
+        
         public MedicalWindow(string role)
         {
             InitializeComponent();
@@ -164,7 +165,7 @@ namespace ZooApp.Views
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            new MainWindow(_role).Show();
+            new MainWindow(_role, _username).Show();
             Close();
         }
 

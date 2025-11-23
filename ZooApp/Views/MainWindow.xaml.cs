@@ -5,7 +5,8 @@ namespace ZooApp.Views
     public partial class MainWindow : Window
     {
         private readonly string _role;
-
+        private readonly string _username;
+        
         // Конструктор без параметрів
         public MainWindow()
         {
@@ -16,10 +17,11 @@ namespace ZooApp.Views
         }
 
         // Конструктор із параметром role
-        public MainWindow(string role)
+        public MainWindow(string role, string username)
         {
             InitializeComponent();
-            _role = role.ToLower(); // робимо нечутливим до регістру
+            _role = role.ToLower(); 
+            _username = username;
             Title = $"ZooApp — {_role}";
             RoleLabel.Text = $"Logged in as: {_role}";
             ApplyAccessRules();
@@ -35,10 +37,12 @@ namespace ZooApp.Views
                     EmployeesButton.Visibility = Visibility.Collapsed;
                     ExchangeButton.Visibility = Visibility.Collapsed;
                     AddUserButton.Visibility = Visibility.Collapsed;
+                    SuppliersButton.Visibility = Visibility.Collapsed;
                     break;
 
                 case "operator":
                     AddUserButton.Visibility = Visibility.Collapsed;
+                    SuppliersButton.Visibility = Visibility.Collapsed;
                     break;
 
                 case "authorized":
@@ -52,10 +56,10 @@ namespace ZooApp.Views
                     break;
 
                 default:
-                    // Якщо раптом якась інша роль
                     EmployeesButton.Visibility = Visibility.Collapsed;
                     ExchangeButton.Visibility = Visibility.Collapsed;
                     AddUserButton.Visibility = Visibility.Collapsed;
+                    SuppliersButton.Visibility = Visibility.Visible;
                     break;
             }
         }
@@ -83,16 +87,28 @@ namespace ZooApp.Views
 
         private void Exchange_Click(object sender, RoutedEventArgs e)
         {
-            var win = new ExchangeWindow();
-            win.Show();
+            new ExchangeWindow(_role, _username).Show();
             this.Close();
         }
+        
 
         private void Employees_Click(object sender, RoutedEventArgs e)
         {
             var win = new EmployeeWindow(_role);
             win.Show();
             this.Close();
+        }
+        
+        private void Suppliers_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new SupplierWindow(_role, _username);
+            win.Show();
+            this.Close();
+        }
+        private void Logs_Click(object sender, RoutedEventArgs e)
+        {
+            new LogsWindow(_role, _username).Show();
+            Close();
         }
 
         private void Logout_Click(object sender, RoutedEventArgs e)

@@ -11,7 +11,8 @@ namespace ZooApp.Views
     {
         private readonly string _role;
         private readonly EmployeeService _employeeService;
-
+        private readonly string _username;
+        
         public EmployeeWindow(string role)
         {
             InitializeComponent();
@@ -97,7 +98,7 @@ namespace ZooApp.Views
         // ⬅ Назад
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            new MainWindow(_role).Show();
+            new MainWindow(_role, _username).Show();
             this.Close();
         }
 

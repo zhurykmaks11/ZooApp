@@ -13,6 +13,14 @@
 
             <TextBlock Text="Password:"/>
             <PasswordBox x:Name="PasswordBox" Height="30" Margin="0,5,0,20"/>
+            
+            <Button Content="Forgot password?"
+                    HorizontalAlignment="Center"
+                    Margin="0,10,0,0"
+                    Foreground="Blue"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Click="ForgotPassword_Click"/>
 
             <Button Content="Login" Height="35" Click="Login_Click"/>
         </StackPanel>

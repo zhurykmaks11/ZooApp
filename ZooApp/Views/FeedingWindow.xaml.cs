@@ -13,7 +13,7 @@ namespace ZooApp.Views
         private readonly IMongoCollection<FeedingSchedule> _feeding;
         private readonly string _role;
         private readonly FeedingService _feedingService;
-
+        private readonly string _username;
 
         public FeedingWindow(string role)
         {
@@ -62,6 +62,27 @@ namespace ZooApp.Views
             {
                 MessageBox.Show("Select a feeding record to edit.");
             }
+        }
+        private void Clean_Click(object sender, RoutedEventArgs e)
+        {
+            int removed = _feedingService.CleanupOrphanFeedings();
+            MessageBox.Show($"Removed {removed} orphan feeding records.", "Cleanup Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+            LoadFeeding();
+        }
+        private void Summary_Click(object sender, RoutedEventArgs e)
+        {
+            var feeds = _feedingService.GetAnimalFeedInfo();
+
+            if (feeds == null || feeds.Count == 0)
+            {
+                MessageBox.Show("No feeding data available.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var message = string.Join("\n", feeds.Select(f =>
+                $"{f.AnimalName} → {f.FeedType} ({f.Quantity} кг)"));
+
+            MessageBox.Show(message, "Feeding Summary", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void Delete_Click(object sender, RoutedEventArgs e)
@@ -139,7 +160,7 @@ namespace ZooApp.Views
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            new MainWindow(_role).Show();
+            new MainWindow(_role, _username).Show();
             this.Close();
         }
 

@@ -12,7 +12,10 @@
 
         <StackPanel>
             <TextBlock Text="Select Animal:" Margin="0,5"/>
-            <ComboBox x:Name="AnimalComboBox" Margin="0,5" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+            <ComboBox x:Name="AnimalComboBox" Margin="0,5"
+                      DisplayMemberPath="DisplayName"
+                      SelectedValuePath="Id"
+                      SelectionChanged="AnimalComboBox_SelectionChanged"/>
 
             <TextBlock Text="Feed Type:" Margin="0,5"/>
             <TextBox x:Name="FeedTypeBox" Margin="0,5"/>

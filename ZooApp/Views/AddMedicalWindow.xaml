@@ -28,7 +28,7 @@
                 <ComboBox x:Name="AnimalComboBox"
                           Width="250"
                           Height="28"
-                          DisplayMemberPath="Name"
+                          DisplayMemberPath="DisplayName"
                           SelectedValuePath="Id"
                           SelectedIndex="0"/>
             </StackPanel>

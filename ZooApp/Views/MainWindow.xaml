@@ -27,6 +27,12 @@
                     Content="🍽 Feeding"
                     Width="200" Height="40" Margin="0,5,0,5"
                     Click="Feeding_Click"/>
+            
+            <!-- 🛒 Постачальники -->
+            <Button x:Name="SuppliersButton"
+                    Content="🛒 Suppliers"
+                    Width="200" Height="40" Margin="0,5,0,5"
+                    Click="Suppliers_Click"/>
 
             <!-- 🩺 Медичні записи -->
             <Button x:Name="MedicalButton"
@@ -39,6 +45,13 @@
                     Content="🔄 Exchange"
                     Width="200" Height="40" Margin="0,5,0,5"
                     Click="Exchange_Click"/>
+            
+            <Button x:Name="LogsButton"
+                    Content="📜 Logs"
+                    Width="200"
+                    Height="40"
+                    Margin="0,5,0,5"
+                    Click="Logs_Click"/>
 
             <!-- 👨‍💼 Працівники -->
             <Button x:Name="EmployeesButton"

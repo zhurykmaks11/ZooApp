@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Medical Records"
         Height="500"
-        Width="1100"
+        Width="1200"
         WindowStartupLocation="CenterScreen">
 
     <Grid Margin="10">
@@ -23,10 +23,25 @@
                 <ColumnDefinition Width="Auto"/> <!-- 5 -->
                 <ColumnDefinition Width="Auto"/> <!-- 6 -->
                 <ColumnDefinition Width="Auto"/> <!-- 7 -->
+                <ColumnDefinition Width="Auto"/> <!-- 7 -->
             </Grid.ColumnDefinitions>
 
-            <Button x:Name="AddRecordButton" Grid.Column="0" Content="➕ Add Record" Width="120" Height="32" Margin="5" Click="AddRecord_Click"/>
-            <Button x:Name="AddCheckupButton" Grid.Column="1" Content="💉 Add Checkup" Width="120" Height="32" Margin="5" Click="AddCheckup_Click"/>
+            <Button x:Name="AddRecordButton"
+                    Grid.Column="0"
+                    Content="➕ Add Record"
+                    Width="120"
+                    Height="32"
+                    Margin="5"
+                    Click="AddRecord_Click"/>
+
+            <Button x:Name="AddCheckupButton"
+                    Grid.Column="1"
+                    Content="💉 Add Checkup"
+                    Width="120"
+                    Height="32"
+                    Margin="5"
+                    Click="AddCheckup_Click"/>
+
             <Button x:Name="EditCheckupButton"
                     Grid.Column="2"
                     Content="✏️ Edit"
@@ -35,7 +50,13 @@
                     Margin="5"
                     Click="EditCheckup_Click"/>
 
-            <Button x:Name="DeleteButton" Grid.Column="3" Content="❌ Delete" Width="100" Height="32" Margin="5" Click="Delete_Click"/>
+            <Button x:Name="DeleteButton"
+                    Grid.Column="3"
+                    Content="❌ Delete"
+                    Width="100"
+                    Height="32"
+                    Margin="5"
+                    Click="Delete_Click"/>
 
             <TextBox Grid.Column="4"
                      x:Name="SearchBox"
@@ -47,9 +68,34 @@
                      GotFocus="SearchBox_GotFocus"
                      LostFocus="SearchBox_LostFocus"/>
 
-            <Button Grid.Column="5" Content="🔍 Find" Width="90" Height="32" Margin="5" Click="Find_Click"/>
-            <Button Grid.Column="6" Content="📊 Stats" Width="90" Height="32" Margin="5" Click="Stats_Click"/>
-            <Button Grid.Column="7" Content="⬅ Back" Width="100" Height="32" Margin="5" Click="Back_Click"/>
+            <Button Grid.Column="5"
+                    Content="🔍 Find"
+                    Width="90"
+                    Height="32"
+                    Margin="5"
+                    Click="Find_Click"/>
+            
+            <Button x:Name="HistoryButton"
+                    Grid.Column="6"
+                    Content="📜 History"
+                    Width="100" Height="32"
+                    Margin="5"
+                    Click="History_Click"/>
+
+
+            <Button Grid.Column="7"
+                    Content="📊 Stats"
+                    Width="90"
+                    Height="32"
+                    Margin="5"
+                    Click="Stats_Click"/>
+
+            <Button Grid.Column="8"
+                    Content="⬅ Back"
+                    Width="100"
+                    Height="32"
+                    Margin="5"
+                    Click="Back_Click"/>
         </Grid>
 
         <!-- Таблиця медичних записів -->
@@ -68,7 +114,7 @@
                 <DataGridTextColumn Header="Last Checkup" Binding="{Binding LastCheckupDate}" Width="150"/>
                 <DataGridTextColumn Header="Weight" Binding="{Binding Weight}" Width="100"/>
                 <DataGridTextColumn Header="Height" Binding="{Binding Height}" Width="100"/>
-                <DataGridTextColumn Header="Vaccinations" Binding="{Binding Vaccinations}" Width="200"/>
+                <DataGridTextColumn Header="Vaccinations" Binding="{Binding Vaccinations}" Width="250"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

@@ -8,6 +8,7 @@ namespace ZooApp.Models
     {
         [BsonId]
         public ObjectId Id { get; set; }
+
         public string IdString => Id.ToString();
 
         [BsonElement("number")]
@@ -20,22 +21,25 @@ namespace ZooApp.Models
         public string Size { get; set; }
 
         [BsonElement("heated")]
-        public bool Heated { get; set; } 
+        public bool Heated { get; set; }
 
-        // Максимальна кількість тварин
         [BsonElement("capacity")]
         public int Capacity { get; set; }
 
-        // Список сумісних видів (напр. "слон", "бегемот")
+        // Сумісні види
         [BsonElement("compatibleSpecies")]
         public List<string> CompatibleSpecies { get; set; } = new();
 
-        // Список ID тварин, які зараз у клітці
-        [BsonElement("animals")]
-        public List<ObjectId> Animals { get; set; } = new();
-        
-        // опційно: дозволені типи ("herbivore"/"carnivore")
+        // Дозволені типи
         [BsonElement("allowedTypes")]
         public List<string> AllowedTypes { get; set; } = new();
+
+        // Тварини в клітці
+        [BsonElement("animals")]
+        public List<ObjectId> Animals { get; set; } = new();
+
+        // Сусідні клітки
+        [BsonElement("neighborCageIds")]
+        public List<string> NeighborCageIds { get; set; } = new();
     }
 }

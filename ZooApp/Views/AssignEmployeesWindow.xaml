@@ -1,0 +1,48 @@
+﻿<Window x:Class="ZooApp.Views.AssignEmployeesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Assign Employees to Animal"
+        Height="500"
+        Width="800"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- LEFT: All employees -->
+        <StackPanel Grid.Column="0" Margin="10">
+            <TextBlock Text="All Employees" FontSize="18" FontWeight="Bold"/>
+            <ListBox x:Name="AllEmployeesList"
+                     Height="350"
+                     DisplayMemberPath="FullName"/>
+        </StackPanel>
+
+        <!-- CENTER BUTTONS -->
+        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+            <Button Content="→ Add" Width="90" Margin="5" Click="Add_Click"/>
+            <Button Content="← Remove" Width="90" Margin="5" Click="Remove_Click"/>
+        </StackPanel>
+
+        <!-- RIGHT: Assigned employees -->
+        <StackPanel Grid.Column="2" Margin="10">
+            <TextBlock Text="Assigned to Animal" FontSize="18" FontWeight="Bold"/>
+            <ListBox x:Name="AssignedList"
+                     Height="350"
+                     DisplayMemberPath="FullName"/>
+        </StackPanel>
+
+        <!-- SAVE BUTTON -->
+        <Button Grid.ColumnSpan="3"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Margin="10"
+                Width="200"
+                Height="35"
+                Content="💾 Save"
+                Click="Save_Click"/>
+    </Grid>
+</Window>

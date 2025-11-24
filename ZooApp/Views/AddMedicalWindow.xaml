@@ -14,7 +14,6 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Контейнер полів -->
         <StackPanel>
             <TextBlock Text="Add Medical Checkup"
                        FontSize="20"
@@ -22,18 +21,15 @@
                        HorizontalAlignment="Center"
                        Margin="0,0,0,15"/>
 
-            <!-- 🐘 Вибір тварини -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <TextBlock Text="Animal:" Width="100" VerticalAlignment="Center"/>
                 <ComboBox x:Name="AnimalComboBox"
                           Width="250"
                           Height="28"
                           DisplayMemberPath="DisplayName"
-                          SelectedValuePath="Id"
-                          SelectedIndex="0"/>
+                          SelectedValuePath="Id"/>
             </StackPanel>
 
-            <!-- Дата -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <TextBlock Text="Date:" Width="100" VerticalAlignment="Center"/>
                 <DatePicker x:Name="DatePicker"
@@ -41,7 +37,6 @@
                             SelectedDate="{x:Static sys:DateTime.Now}"/>
             </StackPanel>
 
-            <!-- Вага -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <TextBlock Text="Weight (kg):" Width="100" VerticalAlignment="Center"/>
                 <TextBox x:Name="WeightBox"
@@ -50,7 +45,6 @@
                          VerticalContentAlignment="Center"/>
             </StackPanel>
 
-            <!-- Ріст -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <TextBlock Text="Height (m):" Width="100" VerticalAlignment="Center"/>
                 <TextBox x:Name="HeightBox"
@@ -59,7 +53,6 @@
                          VerticalContentAlignment="Center"/>
             </StackPanel>
 
-            <!-- Вакцинації -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <TextBlock Text="Vaccinations:" Width="100" VerticalAlignment="Top" Margin="0,3,0,0"/>
                 <TextBox x:Name="VaccinationsBox"
@@ -70,7 +63,6 @@
                          Text="e.g. rabies, flu"/>
             </StackPanel>
 
-            <!-- Хвороби -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <TextBlock Text="Illnesses:" Width="100" VerticalAlignment="Top" Margin="0,3,0,0"/>
                 <TextBox x:Name="IllnessesBox"
@@ -81,7 +73,6 @@
                          Text="e.g. cold, infection"/>
             </StackPanel>
 
-            <!-- Лікування -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <TextBlock Text="Treatment:" Width="100" VerticalAlignment="Top" Margin="0,3,0,0"/>
                 <TextBox x:Name="TreatmentBox"
@@ -92,7 +83,6 @@
             </StackPanel>
         </StackPanel>
 
-        <!-- Кнопки керування -->
         <StackPanel Grid.Row="1"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"

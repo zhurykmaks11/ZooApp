@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using MongoDB.Driver;
 using ZooApp.Data;
 using ZooApp.Models;
 using ZooApp.Services;
@@ -10,7 +9,7 @@ namespace ZooApp.Views
 {
     public partial class AnimalsWindow : Window
     {
-        private readonly IMongoCollection<Animal> _animals;
+        private readonly AnimalsService _animalsService;
         private readonly string _role;
         private readonly string _username;
 
@@ -25,7 +24,7 @@ namespace ZooApp.Views
 
             var context = new MongoDbContext("mongodb://localhost:27017", "test");
 
-            _animals = context.Animals;
+            _animalsService = new AnimalsService(context);
             _log = new LogService(context);
 
             LoadAnimals();
@@ -38,18 +37,16 @@ namespace ZooApp.Views
             switch (_role)
             {
                 case "admin":
-                    break; // full access
-
-                case "operator":
-                    break; // can add/edit/delete
-
-                case "authorized":
-                    AddButton.IsEnabled = false;
-                    EditButton.IsEnabled = false;
-                    DeleteButton.IsEnabled = false;
+                    // full access
                     break;
 
+                case "operator":
+                    // теж має повний CRUD по тваринах
+                    break;
+
+                case "authorized":
                 case "guest":
+                    AssignEmployees.IsEnabled = false;
                     AddButton.IsEnabled = false;
                     EditButton.IsEnabled = false;
                     DeleteButton.IsEnabled = false;
@@ -59,7 +56,7 @@ namespace ZooApp.Views
 
         private void LoadAnimals()
         {
-            AnimalsGrid.ItemsSource = _animals.Find(_ => true).ToList();
+            AnimalsGrid.ItemsSource = _animalsService.GetAllAnimals();
         }
 
         private void Add_Click(object sender, RoutedEventArgs e)
@@ -67,9 +64,17 @@ namespace ZooApp.Views
             var window = new AddEditAnimalWindow(_role);
             if (window.ShowDialog() == true)
             {
-                window.Animal.Id = null;
+                // при InsertOne драйвер Mongo заповнить Id
+                _animalsService.AddAnimal(window.Animal);
 
-                _animals.InsertOne(window.Animal);
+                // якщо є батьки — прив'язуємо дитину
+                if (!string.IsNullOrEmpty(window.Animal.Id))
+                {
+                    _animalsService.AddChild(
+                        window.Animal.MotherId,
+                        window.Animal.FatherId,
+                        window.Animal.Id);
+                }
 
                 _log.Write(_username, "Add Animal",
                     $"Added new animal: {window.Animal.Name}");
@@ -86,17 +91,52 @@ namespace ZooApp.Views
                 return;
             }
 
-            var window = new AddEditAnimalWindow(_role, selected);
+            // Створюємо копію, щоб не правити напряму в гріді
+            var clone = new Animal
+            {
+                Id = selected.Id,
+                Name = selected.Name,
+                Species = selected.Species,
+                Gender = selected.Gender,
+                BirthDate = selected.BirthDate,
+                Weight = selected.Weight,
+                Height = selected.Height,
+                Type = selected.Type,
+                ClimateZone = selected.ClimateZone,
+                CageId = selected.CageId,
+                FeedingScheduleId = selected.FeedingScheduleId,
+                MedicalRecordId = selected.MedicalRecordId,
+                NeedsWarmShelter = selected.NeedsWarmShelter,
+                IsIsolated = selected.IsIsolated,
+                IsolationReason = selected.IsolationReason,
+                MotherId = selected.MotherId,
+                FatherId = selected.FatherId,
+                ChildrenIds = selected.ChildrenIds?.ToList() ?? new()
+            };
+
+            var window = new AddEditAnimalWindow(_role, clone);
 
             if (window.ShowDialog() == true)
             {
-                _animals.ReplaceOne(a => a.Id == selected.Id, window.Animal);
+                _animalsService.UpdateAnimal(window.Animal);
 
                 _log.Write(_username, "Edit Animal",
                     $"Edited animal: {window.Animal.Name}");
 
                 LoadAnimals();
             }
+        }
+        private void AssignEmployees_Click(object sender, RoutedEventArgs e)
+        {
+            if (AnimalsGrid.SelectedItem is not Animal selected)
+            {
+                MessageBox.Show("Select an animal.");
+                return;
+            }
+
+            var win = new AssignEmployeesWindow(selected);
+            if (win.ShowDialog() == true)
+                LoadAnimals();
         }
 
         private void Delete_Click(object sender, RoutedEventArgs e)
@@ -108,9 +148,9 @@ namespace ZooApp.Views
             }
 
             if (MessageBox.Show($"Delete {selected.Name}?", "Confirm",
-                    MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                _animals.DeleteOne(a => a.Id == selected.Id);
+                _animalsService.DeleteAnimal(selected.Id);
 
                 _log.Write(_username, "Delete Animal",
                     $"Deleted animal: {selected.Name}");
@@ -123,16 +163,19 @@ namespace ZooApp.Views
         {
             string q = SearchBox.Text.Trim().ToLower();
 
-            if (string.IsNullOrEmpty(q))
+            if (string.IsNullOrEmpty(q) || q == "search by name...")
             {
                 LoadAnimals();
                 return;
             }
 
-            AnimalsGrid.ItemsSource = _animals.Find(a =>
-                a.Name.ToLower().Contains(q) ||
-                a.Species.ToLower().Contains(q)
-            ).ToList();
+            var all = _animalsService.GetAllAnimals();
+
+            AnimalsGrid.ItemsSource = all
+                .Where(a =>
+                    a.Name.ToLower().Contains(q) ||
+                    a.Species.ToLower().Contains(q))
+                .ToList();
         }
 
         private void SearchBox_GotFocus(object sender, RoutedEventArgs e)

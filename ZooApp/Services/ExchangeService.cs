@@ -27,6 +27,27 @@ namespace ZooApp.Services
         {
             _exchangeCollection.InsertOne(record);
         }
+        // 📌 Усі унікальні зоопарки-партнери
+        public List<string> GetPartnerZoos()
+        {
+            return _exchangeCollection.AsQueryable()
+                .Select(e => e.OtherZoo)
+                .Distinct()
+                .OrderBy(z => z)
+                .ToList();
+        }
+
+// 📌 Партнери тільки для вказаного виду
+        public List<string> GetPartnerZoosBySpecies(string species)
+        {
+            return _exchangeCollection.AsQueryable()
+                .Where(e => e.AnimalName.ToLower().Contains(species.ToLower()))
+                .Select(e => e.OtherZoo)
+                .Distinct()
+                .OrderBy(z => z)
+                .ToList();
+        }
+
 
         // 📌 Оновити існуючий
         public void Update(ExchangeRecord record)

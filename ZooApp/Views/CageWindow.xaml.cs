@@ -1,14 +1,18 @@
 ﻿using System.Linq;
 using System.Windows;
+using MongoDB.Driver;
 using ZooApp.Data;
+using ZooApp.Models;
 using ZooApp.Services;
 
 namespace ZooApp.Views
 {
     public partial class CageWindow : Window
     {
-        private readonly CagesService _cagesService;
+        private readonly CagesService _cages;
+        private readonly IMongoCollection<Animal> _animals;
         private readonly LogService _log;
+
         private readonly string _role;
         private readonly string _username;
 
@@ -16,41 +20,33 @@ namespace ZooApp.Views
         {
             InitializeComponent();
 
-            _role = role?.ToLower() ?? "guest";
+            _role = role.ToLower();
             _username = username;
 
-            var context = new MongoDbContext("mongodb://localhost:27017", "test");
-            _cagesService = new CagesService(context);
-            _log = new LogService(context);
+            var ctx = new MongoDbContext("mongodb://localhost:27017", "test");
 
+            _cages = new CagesService(ctx);
+            _animals = ctx.Animals;
+            _log = new LogService(ctx);
+
+            ApplyPermissions();
             LoadCages();
-            ApplyAccessRules();
         }
 
-        private void ApplyAccessRules()
+        private void ApplyPermissions()
         {
-            switch (_role)
-            {
-                case "admin":
-                case "operator":
-                    // повний доступ до кліток
-                    break;
+            if (_role is "admin" or "operator") return;
 
-                case "authorized":
-                case "guest":
-                    AddCageButton.IsEnabled = false;
-                    EditCageButton.IsEnabled = false;
-                    DeleteCageButton.IsEnabled = false;
-                    AssignAnimalButton.IsEnabled = false;
-                    MoveAnimalButton.IsEnabled = false;
-                    // ViewAnimalsButton залишаємо, бо вони можуть дивитись
-                    break;
-            }
+            AddCageButton.IsEnabled = false;
+            EditCageButton.IsEnabled = false;
+            DeleteCageButton.IsEnabled = false;
+            AssignAnimalButton.IsEnabled = false;
+            MoveAnimalButton.IsEnabled = false;
         }
 
         private void LoadCages()
         {
-            var cages = _cagesService.GetAllCages()
+            var list = _cages.GetAllCages()
                 .Select(c => new
                 {
                     c.Id,
@@ -58,98 +54,80 @@ namespace ZooApp.Views
                     c.Size,
                     Heated = c.Heated ? "Yes" : "No",
                     c.Capacity,
-                    AnimalCount = c.Animals.Count
+                    // Accurate count
+                    AnimalCount = _animals.CountDocuments(a => a.CageId == c.IdString)
                 })
                 .ToList();
 
-            CagesGrid.ItemsSource = cages;
-        }
-
-        private void AddCage_Click(object sender, RoutedEventArgs e)
-        {
-            var win = new AddCageWindow(_username);
-            if (win.ShowDialog() == true)
-                LoadCages();
-        }
-
-        private void EditCage_Click(object sender, RoutedEventArgs e)
-        {
-            if (CagesGrid.SelectedItem == null)
-            {
-                MessageBox.Show("Select a cage first.");
-                return;
-            }
-
-            dynamic row = CagesGrid.SelectedItem;
-            string cageId = row.Id.ToString();
-
-            var win = new EditCageWindow(cageId, _username);
-            if (win.ShowDialog() == true)
-                LoadCages();
-        }
-
-        private void DeleteCage_Click(object sender, RoutedEventArgs e)
-        {
-            if (CagesGrid.SelectedItem == null)
-            {
-                MessageBox.Show("Select a cage first.");
-                return;
-            }
-
-            dynamic row = CagesGrid.SelectedItem;
-            string cageId = row.Id.ToString();
-
-            var cage = _cagesService.GetCage(cageId);
-            if (cage.Animals.Count > 0)
-            {
-                MessageBox.Show("❌ Cannot delete cage — animals still inside!");
-                return;
-            }
-
-            if (MessageBox.Show("Delete cage?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-            {
-                _cagesService.DeleteCage(cageId);
-                _log.Write(_username, "Delete Cage",
-                    $"Location={cage.Location}, Size={cage.Size}, Capacity={cage.Capacity}");
-
-                MessageBox.Show("✅ Cage deleted.");
-                LoadCages();
-            }
+            CagesGrid.ItemsSource = list;
         }
 
         private void AssignAnimal_Click(object sender, RoutedEventArgs e)
         {
             var win = new AssignAnimalToCageWindow(_username);
-            if (win.ShowDialog() == true)
-                LoadCages();
+            if (win.ShowDialog() == true) LoadCages();
         }
 
         private void MoveAnimal_Click(object sender, RoutedEventArgs e)
         {
             var win = new MoveAnimalWindow(_username);
-            if (win.ShowDialog() == true)
-                LoadCages();
+            if (win.ShowDialog() == true) LoadCages();
         }
 
         private void ViewAnimals_Click(object sender, RoutedEventArgs e)
         {
             if (CagesGrid.SelectedItem == null)
             {
-                MessageBox.Show("Select a cage first.");
+                MessageBox.Show("Select cage");
                 return;
             }
 
-            dynamic row = CagesGrid.SelectedItem;
-            string cageId = row.Id.ToString();
+            var cageId = ((dynamic)CagesGrid.SelectedItem).Id.ToString();
+            new ViewCageAnimalsWindow(cageId).ShowDialog();
+        }
 
-            var win = new ViewCageAnimalsWindow(cageId);
-            win.ShowDialog();
+        private void AddCage_Click(object sender, RoutedEventArgs e)
+        {
+            var w = new AddCageWindow(_username);
+            if (w.ShowDialog() == true) LoadCages();
+        }
+
+        private void EditCage_Click(object sender, RoutedEventArgs e)
+        {
+            if (CagesGrid.SelectedItem == null)
+                return;
+
+            string id = ((dynamic)CagesGrid.SelectedItem).Id.ToString();
+            var w = new EditCageWindow(id, _username);
+            if (w.ShowDialog() == true) LoadCages();
+        }
+
+        private void DeleteCage_Click(object sender, RoutedEventArgs e)
+        {
+            if (CagesGrid.SelectedItem == null) return;
+            string id = ((dynamic)CagesGrid.SelectedItem).Id.ToString();
+
+            if (_animals.CountDocuments(a => a.CageId == id) > 0)
+            {
+                MessageBox.Show("❌ Cannot delete cage with animals");
+                return;
+            }
+
+            if (MessageBox.Show("Delete cage?", "Confirm", MessageBoxButton.YesNo)
+                == MessageBoxResult.Yes)
+            {
+                var cage = _cages.GetCage(id);
+                _cages.DeleteCage(id);
+
+                _log.Write(_username, "Delete Cage", cage.Location);
+                LoadCages();
+            }
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
             new MainWindow(_role, _username).Show();
-            this.Close();
+            Close();
         }
     }
 }

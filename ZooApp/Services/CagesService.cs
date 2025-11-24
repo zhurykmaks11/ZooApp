@@ -18,173 +18,158 @@ namespace ZooApp.Services
             _animals = context.Animals;
         }
 
-        // -------------------------
-        // BASIC CRUD
-        // -------------------------
+        // GET ALL
         public List<Cage> GetAllCages()
         {
             return _cages.Find(_ => true).ToList();
         }
 
+        // GET BY ID
         public Cage GetCage(string cageId)
         {
-            if (!ObjectId.TryParse(cageId, out ObjectId id))
-                return null;
-
+            if (!ObjectId.TryParse(cageId, out var id)) return null;
             return _cages.Find(c => c.Id == id).FirstOrDefault();
         }
 
-        public void AddCage(Cage cage)
-        {
-            _cages.InsertOne(cage);
-        }
+        // ADD
+        public void AddCage(Cage cage) => _cages.InsertOne(cage);
 
-        public void UpdateCage(string cageId, string location, string size, int capacity, List<string> species)
-        {
-            if (!ObjectId.TryParse(cageId, out ObjectId oid))
-                return;
-
-            var update = Builders<Cage>.Update
-                .Set(c => c.Location, location)
-                .Set(c => c.Size, size)
-                .Set(c => c.Capacity, capacity)
-                .Set(c => c.CompatibleSpecies, species);
-
-            _cages.UpdateOne(c => c.Id == oid, update);
-        }
-
+        // DELETE
         public void DeleteCage(string cageId)
         {
-            if (!ObjectId.TryParse(cageId, out ObjectId oid))
-                return;
-
-            _cages.DeleteOne(c => c.Id == oid);
+            if (!ObjectId.TryParse(cageId, out var id)) return;
+            _cages.DeleteOne(c => c.Id == id);
         }
 
-        // -------------------------
-        // SAFE CHECK BEFORE MOVING
-        // -------------------------
+        // UPDATE BASIC PROPERTIES
+        public void UpdateCage(string cageId, string location, string size, int cap, List<string> species)
+        {
+            if (!ObjectId.TryParse(cageId, out var id)) return;
+
+            var upd = Builders<Cage>.Update
+                .Set(c => c.Location, location)
+                .Set(c => c.Size, size)
+                .Set(c => c.Capacity, cap)
+                .Set(c => c.CompatibleSpecies, species);
+
+            _cages.UpdateOne(c => c.Id == id, upd);
+        }
+
+        // ---------------------------------------------
+        //  FULL CHECK (IDEAL): COMPATIBILITY + ANIMAL TYPE + WINTER + NEIGHBORS
+        // ---------------------------------------------
         public bool CanAssignAnimalSafe(string cageId, Animal animal)
         {
-            if (!ObjectId.TryParse(cageId, out ObjectId cageObjId))
+            if (!ObjectId.TryParse(cageId, out var cageObjId))
                 return false;
 
             var cage = _cages.Find(c => c.Id == cageObjId).FirstOrDefault();
             if (cage == null) return false;
 
-            // 1. Capacity
+            // 1 — capacity
             if (cage.Animals.Count >= cage.Capacity)
                 return false;
 
-            // 2. Species compatibility (case-insensitive)
+            // 2 — species
             if (cage.CompatibleSpecies.Count > 0 &&
-                !cage.CompatibleSpecies.Any(s =>
-                    s.ToLower().Trim() == animal.Species.ToLower().Trim()))
+                !cage.CompatibleSpecies.Any(s => s.ToLower() == animal.Species.ToLower()))
                 return false;
 
-            // 3. Type rule
+            // 3 — predator/herbivore rules
+            var inside = _animals.Find(a => a.CageId == cageId).ToList();
+
+            if (animal.Type == "predator" && inside.Any(a => a.Type == "herbivore"))
+                return false;
+
+            if (animal.Type == "herbivore" && inside.Any(a => a.Type == "predator"))
+                return false;
+
+            // 4 — allowed types (from cage config)
             if (cage.AllowedTypes.Count > 0 &&
                 !cage.AllowedTypes.Contains(animal.Type))
                 return false;
 
-            // 4. Fetch animals in cage
-            var animalsInCage = _animals.Find(a =>
-                a.CageId == cageId).ToList();
-
-            // 5. Predator-herbivore conflict
-            if (animal.Type == "predator" && animalsInCage.Any(a => a.Type == "herbivore"))
+            // 5 — winter requirement
+            if (animal.NeedsWarmShelter && !cage.Heated)
                 return false;
 
-            if (animal.Type == "herbivore" && animalsInCage.Any(a => a.Type == "predator"))
-                return false;
-
-            return true;
-        }
-
-        // -------------------------
-        // MOVE ANIMAL BETWEEN CAGES
-        // -------------------------
-        public bool MoveAnimal(string animalId, string newCageId)
-        {
-            var animal = _animals.Find(a => a.Id == animalId).FirstOrDefault();
-            if (animal == null)
-                return false;
-
-            string oldCage = animal.CageId;
-
-            // No change
-            if (oldCage == newCageId)
-                return true;
-
-            // Check BEFORE removal from old cage
-            if (!string.IsNullOrEmpty(newCageId) &&
-                !CanAssignAnimalSafe(newCageId, animal))
+            // 6 — neighbors
+            foreach (var nId in cage.NeighborCageIds)
             {
-                return false;
-            }
+                var neighbors = _animals.Find(a => a.CageId == nId).ToList();
 
-            // ✔ Remove from old cage (if existed)
-            if (!string.IsNullOrEmpty(oldCage))
-                RemoveAnimalFromCage(animalId, oldCage);
-
-            // ✔ Add to new cage
-            if (!string.IsNullOrEmpty(newCageId))
-            {
-                if (!AddAnimalToCage(animalId, newCageId))
-                {
-                    // If fail → return to old cage
-                    if (!string.IsNullOrEmpty(oldCage))
-                        AddAnimalToCage(animalId, oldCage);
-
+                if (animal.Type == "predator" && neighbors.Any(a => a.Type == "herbivore"))
                     return false;
-                }
+
+                if (animal.Type == "herbivore" && neighbors.Any(a => a.Type == "predator"))
+                    return false;
             }
 
             return true;
         }
 
-        // -------------------------
-        // ASSIGN TO CAGE
-        // -------------------------
+        // ---------------------------------------------------
+        //  ADD ANIMAL TO CAGE + UPDATE BOTH ANIMAL AND CAGE
+        // ---------------------------------------------------
         public bool AddAnimalToCage(string animalId, string cageId)
         {
-            if (!ObjectId.TryParse(animalId, out ObjectId animalObjId)) return false;
-            if (!ObjectId.TryParse(cageId, out ObjectId cageObjId)) return false;
+            if (!ObjectId.TryParse(animalId, out var aId)) return false;
+            if (!ObjectId.TryParse(cageId, out var cId)) return false;
 
-            var cage = _cages.Find(c => c.Id == cageObjId).FirstOrDefault();
             var animal = _animals.Find(a => a.Id == animalId).FirstOrDefault();
+            if (animal == null) return false;
 
-            if (cage == null || animal == null)
-                return false;
-
-            // Final check using unified logic
             if (!CanAssignAnimalSafe(cageId, animal))
                 return false;
 
-            // Add animal reference
-            var updateCage = Builders<Cage>.Update.Push(c => c.Animals, animalObjId);
-            _cages.UpdateOne(c => c.Id == cageObjId, updateCage);
+            // update cage
+            _cages.UpdateOne(c => c.Id == cId,
+                Builders<Cage>.Update.Push(c => c.Animals, aId));
 
-            // Link animal to cage
-            var updateAnimal = Builders<Animal>.Update.Set(a => a.CageId, cageId);
-            _animals.UpdateOne(a => a.Id == animalId, updateAnimal);
+            // update animal
+            _animals.UpdateOne(a => a.Id == animalId,
+                Builders<Animal>.Update.Set(a => a.CageId, cageId));
 
             return true;
         }
 
-        // -------------------------
-        // REMOVE FROM CAGE
-        // -------------------------
+        // ---------------------------------------------------
+        // REMOVE
+        // ---------------------------------------------------
         public void RemoveAnimalFromCage(string animalId, string cageId)
         {
-            if (!ObjectId.TryParse(animalId, out ObjectId animalObjId)) return;
-            if (!ObjectId.TryParse(cageId, out ObjectId cageObjId)) return;
+            if (!ObjectId.TryParse(animalId, out var aId)) return;
+            if (!ObjectId.TryParse(cageId, out var cId)) return;
 
-            var update = Builders<Cage>.Update.Pull(c => c.Animals, animalObjId);
-            _cages.UpdateOne(c => c.Id == cageObjId, update);
+            _cages.UpdateOne(c => c.Id == cId,
+                Builders<Cage>.Update.Pull(c => c.Animals, aId));
 
-            var updateAnimal = Builders<Animal>.Update.Set(a => a.CageId, null);
-            _animals.UpdateOne(a => a.Id == animalId, updateAnimal);
+            _animals.UpdateOne(a => a.Id == animalId,
+                Builders<Animal>.Update.Set(a => a.CageId, null));
+        }
+
+        // ---------------------------------------------------
+        // MOVE (SMART MOVE)
+        // ---------------------------------------------------
+        public bool MoveAnimal(string animalId, string newCageId)
+        {
+            var animal = _animals.Find(a => a.Id == animalId).FirstOrDefault();
+            if (animal == null) return false;
+
+            var oldCage = animal.CageId;
+
+            if (newCageId == oldCage) return true;
+
+            if (!CanAssignAnimalSafe(newCageId, animal))
+                return false;
+
+            if (!string.IsNullOrEmpty(oldCage))
+                RemoveAnimalFromCage(animalId, oldCage);
+
+            if (!string.IsNullOrEmpty(newCageId))
+                return AddAnimalToCage(animalId, newCageId);
+
+            return true;
         }
     }
 }

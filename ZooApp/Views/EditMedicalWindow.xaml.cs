@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using ZooApp.Models;
 
 namespace ZooApp.Views
@@ -10,39 +9,29 @@ namespace ZooApp.Views
     {
         public Checkup UpdatedCheckup { get; private set; }
 
+        private readonly Checkup _original;
+
         public EditMedicalWindow(Checkup checkup)
         {
             InitializeComponent();
 
-            // заповнюємо початкові значення
+            _original = checkup ?? throw new ArgumentNullException(nameof(checkup));
+
             DatePicker.SelectedDate = checkup.Date;
             WeightBox.Text = checkup.Weight.ToString();
             HeightBox.Text = checkup.Height.ToString();
-            VaccinationsBox.Text = string.Join(", ", checkup.Vaccinations);
-            IllnessesBox.Text = string.Join(", ", checkup.Illnesses);
+            VaccinationsBox.Text = string.Join(", ", checkup.Vaccinations ?? Enumerable.Empty<string>());
+            IllnessesBox.Text = string.Join(", ", checkup.Illnesses ?? Enumerable.Empty<string>());
             TreatmentBox.Text = checkup.Treatment;
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            // Валідація
-            if (!double.TryParse(WeightBox.Text, out var w) || w <= 0)
-            {
-                MessageBox.Show("Weight must be a positive number.");
-                return;
-            }
-
-            if (!double.TryParse(HeightBox.Text, out var h) || h <= 0)
-            {
-                MessageBox.Show("Height must be a positive number.");
-                return;
-            }
-
             UpdatedCheckup = new Checkup
             {
-                Date = DatePicker.SelectedDate ?? DateTime.Now,
-                Weight = w,
-                Height = h,
+                Date = DatePicker.SelectedDate ?? _original.Date,
+                Weight = double.TryParse(WeightBox.Text, out var w) ? w : _original.Weight,
+                Height = double.TryParse(HeightBox.Text, out var h) ? h : _original.Height,
                 Vaccinations = VaccinationsBox.Text
                     .Split(',', StringSplitOptions.RemoveEmptyEntries)
                     .Select(v => v.Trim())

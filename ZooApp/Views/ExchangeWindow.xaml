@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Zoo Exchanges"
         Height="520"
-        Width="1100"
+        Width="1200"
         WindowStartupLocation="CenterScreen">
 
     <Grid Margin="10">
@@ -19,6 +19,7 @@
                 <ColumnDefinition Width="Auto"/> <!-- Edit -->
                 <ColumnDefinition Width="Auto"/> <!-- Delete -->
                 <ColumnDefinition Width="200"/> <!-- Search -->
+                <ColumnDefinition Width="Auto"/> <!-- Find -->
                 <ColumnDefinition Width="Auto"/> <!-- Find -->
                 <ColumnDefinition Width="Auto"/> <!-- Back -->
             </Grid.ColumnDefinitions>
@@ -57,8 +58,15 @@
                      LostFocus="Search_LostFocus"/>
 
             <Button Grid.Column="4" Content="🔍 Find" Width="100" Height="32" Margin="5" Click="Find_Click"/>
+            
+            <Button Grid.Column="5"
+                    Content="🌍 Partners"
+                    Width="120"
+                    Height="32"
+                    Margin="5"
+                    Click="Partners_Click"/>
 
-            <Button Grid.Column="5" Content="⬅ Back" Width="100" Height="32" Margin="5" Click="Back_Click"/>
+            <Button Grid.Column="6" Content="⬅ Back" Width="100" Height="32" Margin="5" Click="Back_Click"/>
 
         </Grid>
 

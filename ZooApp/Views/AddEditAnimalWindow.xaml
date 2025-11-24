@@ -1,62 +1,101 @@
 ﻿<Window x:Class="ZooApp.Views.AddEditAnimalWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Add / Edit Animal" Height="600" Width="400"
+        Title="Add / Edit Animal"
+        Height="780"
+        Width="450"
         WindowStartupLocation="CenterScreen">
 
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <StackPanel>
-            <TextBlock Text="Name:"/>
-            <TextBox x:Name="NameBox" Margin="0,5,0,10"/>
+            <StackPanel>
 
-            <TextBlock Text="Species:"/>
-            <TextBox x:Name="SpeciesBox" Margin="0,5,0,10"/>
+                <!-- BASIC INFO -->
+                <TextBlock Text="Name:"/>
+                <TextBox x:Name="NameBox" Margin="0,5"/>
 
-            <TextBlock Text="Gender:"/>
-            <ComboBox x:Name="GenderBox" Margin="0,5,0,10">
-                <ComboBoxItem Content="male"/>
-                <ComboBoxItem Content="female"/>
-            </ComboBox>
+                <TextBlock Text="Species:" Margin="0,10,0,0"/>
+                <TextBox x:Name="SpeciesBox" Margin="0,5"/>
 
-            <TextBlock Text="Birth Date:"/>
-            <DatePicker x:Name="BirthDatePicker" Margin="0,5,0,10"/>
+                <TextBlock Text="Gender:" Margin="0,10,0,0"/>
+                <ComboBox x:Name="GenderBox" Margin="0,5">
+                    <ComboBoxItem Content="male"/>
+                    <ComboBoxItem Content="female"/>
+                </ComboBox>
 
-            <TextBlock Text="Weight (kg):"/>
-            <TextBox x:Name="WeightBox"
-                     Margin="0,5,0,10"
-                     PreviewTextInput="NumberOnly_TextInput"/>
+                <TextBlock Text="Birth Date:" Margin="0,10,0,0"/>
+                <DatePicker x:Name="BirthDatePicker" Margin="0,5"/>
 
-            <TextBlock Text="Height (m):"/>
-            <TextBox x:Name="HeightBox"
-                     Margin="0,5,0,10"
-                     PreviewTextInput="NumberOnly_TextInput"/>
+                <TextBlock Text="Weight (kg):" Margin="0,10,0,0"/>
+                <TextBox x:Name="WeightBox" Margin="0,5" PreviewTextInput="NumberOnly_TextInput"/>
 
-            <TextBlock Text="Type:"/>
-            <ComboBox x:Name="TypeBox" Margin="0,5,0,10">
-                <ComboBoxItem Content="herbivore"/>
-                <ComboBoxItem Content="predator"/>
-            </ComboBox>
+                <TextBlock Text="Height (m):" Margin="0,10,0,0"/>
+                <TextBox x:Name="HeightBox" Margin="0,5" PreviewTextInput="NumberOnly_TextInput"/>
 
-            <TextBlock Text="Cage (optional):"/>
-            <ComboBox x:Name="CageBox"
-                      Margin="0,5,0,10"
-                      DisplayMemberPath="Location"
-                      SelectedValuePath="IdString"/>
+                <TextBlock Text="Type:" Margin="0,10,0,0"/>
+                <ComboBox x:Name="TypeBox" Margin="0,5">
+                    <ComboBoxItem Content="herbivore"/>
+                    <ComboBoxItem Content="predator"/>
+                </ComboBox>
 
-            <TextBlock FontSize="10" Foreground="Gray" Text="*You can assign cage later in Cages menu"/>
+                <!-- CLIMATE -->
+                <TextBlock Text="Climate Zone:" Margin="0,10,0,0"/>
+                <TextBox x:Name="ClimateBox" Margin="0,5"/>
 
-            <TextBlock Text="Climate Zone:"/>
-            <TextBox x:Name="ClimateBox" Margin="0,5,0,10"/>
-        </StackPanel>
+                <CheckBox x:Name="WarmShelterBox"
+                          Content="Needs warm shelter in winter"
+                          Margin="0,10"/>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Save" Width="100" Margin="5" Click="Save_Click"/>
-            <Button Content="Cancel" Width="100" Margin="5" Click="Cancel_Click"/>
-        </StackPanel>
-    </Grid>
+                <!-- ISOLATION -->
+                <CheckBox x:Name="IsolatedBox"
+                          Content="Animal is currently isolated"
+                          Margin="0,10"
+                          Checked="IsolatedBox_Checked"
+                          Unchecked="IsolatedBox_Unchecked"/>
+
+                <TextBlock Text="Isolation Reason:"/>
+                <TextBox x:Name="IsolationReasonBox"
+                         Margin="0,5"
+                         Height="60"
+                         TextWrapping="Wrap"/>
+
+                <!-- PARENTS -->
+                <TextBlock Text="Mother:" Margin="0,15,0,0"/>
+                <ComboBox x:Name="MotherBox" Margin="0,5"
+                          DisplayMemberPath="DisplayName"
+                          SelectedValuePath="Id"/>
+
+                <TextBlock Text="Father:" Margin="0,10,0,0"/>
+                <ComboBox x:Name="FatherBox" Margin="0,5"
+                          DisplayMemberPath="DisplayName"
+                          SelectedValuePath="Id"/>
+
+                <!-- CAGE -->
+                <TextBlock Text="Cage:" Margin="0,15,0,0"/>
+                <ComboBox x:Name="CageBox"
+                          Margin="0,5"
+                          DisplayMemberPath="Location"
+                          SelectedValuePath="IdString"
+                          SelectionChanged="CageBox_SelectionChanged"/>
+
+                <TextBlock x:Name="CageWarning"
+                           Margin="0,5"
+                           Foreground="Red"
+                           Visibility="Collapsed"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,20,0,0">
+                <Button Content="Save" Width="120" Margin="5" Click="Save_Click"/>
+                <Button Content="Cancel" Width="120" Margin="5" Click="Cancel_Click"/>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </Window>

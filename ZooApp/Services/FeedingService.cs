@@ -69,17 +69,23 @@ namespace ZooApp.Services
                 f.FeedType.ToLower().Contains(keyword)).ToList();
         }
 
-        // ✅ 6. Отримати список тварин, які потребують певного типу корму у певний сезон
-        public List<FeedingSchedule> GetAnimalsByFeedAndSeason(string feedType, string season)
+        public List<string> GetUniqueAnimalsByFeedAndSeason(string feedType, string season)
         {
-            var query = _feedingCollection.AsQueryable()
-                .Where(f => f.FeedType.ToLower() == feedType.ToLower());
+            var query = _feedingCollection.AsQueryable();
 
-            if (!string.IsNullOrEmpty(season))
+            if (!string.IsNullOrWhiteSpace(feedType))
+                query = query.Where(f => f.FeedType.ToLower() == feedType.ToLower());
+
+            if (!string.IsNullOrWhiteSpace(season))
                 query = query.Where(f => f.Season.ToLower() == season.ToLower());
 
-            return query.ToList();
+            return query
+                .Select(f => f.AnimalName)
+                .Distinct()
+                .OrderBy(name => name)
+                .ToList();
         }
+
 
         // ✅ 7. Отримати загальну кількість корму за сезоном
         public double GetTotalFeedBySeason(string season)

@@ -125,6 +125,13 @@ namespace ZooApp.Views
             win.Show();
             Close();
         }
+        private void Reports_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new ReportsWindow(_role, _username);
+            win.Show();
+            this.Close();
+        }
+
 
         private void Employees_Click(object sender, RoutedEventArgs e)
         {

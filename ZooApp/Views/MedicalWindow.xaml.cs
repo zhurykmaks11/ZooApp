@@ -2,30 +2,36 @@
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Media;
 using MongoDB.Driver;
 using ZooApp.Data;
 using ZooApp.Models;
 using ZooApp.Services;
-using MongoDB.Bson;
 
 namespace ZooApp.Views
 {
     public partial class MedicalWindow : Window
     {
         private readonly string _role;
-        private readonly MedicalService _medicalService;
         private readonly string _username;
+
+        private readonly MongoDbContext _context;
+        private readonly MedicalService _medicalService;
+        private readonly IMongoCollection<Animal> _animalsCollection;
         private readonly LogService _log;
 
         public MedicalWindow(string role, string username)
         {
             InitializeComponent();
-            _role = role;
+
+            _role = role?.ToLower() ?? "guest";
             _username = username;
 
-            var context = new MongoDbContext("mongodb://localhost:27017", "test");
-            _medicalService = new MedicalService(context);
-            _log = new LogService(context);
+            _context = new MongoDbContext("mongodb://localhost:27017", "test");
+            _medicalService = new MedicalService(_context);
+            _animalsCollection = _context.Animals;
+            _log = new LogService(_context);
+
             LoadRecords();
             ApplyAccessRules();
         }
@@ -33,16 +39,17 @@ namespace ZooApp.Views
         // 🧩 Завантаження таблиці
         private void LoadRecords()
         {
-            var context = new MongoDbContext("mongodb://localhost:27017", "test");
-            var animals = context.Animals.Find(_ => true).ToList();
+            var animals = _animalsCollection.Find(_ => true).ToList();
             var records = _medicalService.GetAllRecords();
 
             var data = records.Select(r =>
             {
                 var animal = animals.FirstOrDefault(a =>
-                    r.AnimalId != null && a.Id == r.AnimalId.ToString());
+                    r.AnimalId != null && a.Id == r.AnimalId);
 
-                var last = r.Checkups.OrderByDescending(c => c.Date).FirstOrDefault();
+                var last = r.Checkups
+                    .OrderByDescending(c => c.Date)
+                    .FirstOrDefault();
 
                 return new
                 {
@@ -62,15 +69,18 @@ namespace ZooApp.Views
         // 🔒 Обмеження за роллю
         private void ApplyAccessRules()
         {
-            switch (_role.ToLower())
+            switch (_role)
             {
                 case "admin":
+                    // full access
                     break;
 
                 case "operator":
                     AddRecordButton.IsEnabled = false;
                     AddCheckupButton.IsEnabled = false;
                     DeleteButton.IsEnabled = false;
+                    // редагувати останній чекап теж логічно заборонити
+                    EditCheckupButton.IsEnabled = false;
                     break;
 
                 case "authorized":
@@ -83,39 +93,62 @@ namespace ZooApp.Views
             }
         }
 
-
-        // ➕ Новий запис (якщо тварини ще немає)
+        // ➕ Новий запис (або перший чекап)
         private void AddRecord_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new AddMedicalWindow();
+            var dialog = new AddMedicalWindow(); // вибір тварини всередині
             if (dialog.ShowDialog() == true)
             {
-                
                 LoadRecords();
-                _log.Write(_username, "Add Medical Record", "Created new medical record");
+                _log.Write(_username, "Add Medical Record", "Created or updated medical record");
             }
-            
+        }
+        private void History_Click(object sender, RoutedEventArgs e)
+        {
+            int index = MedicalGrid.SelectedIndex;
+            if (index < 0)
+            {
+                MessageBox.Show("Select a record first.");
+                return;
+            }
 
+            var records = _medicalService.GetAllRecords();
+            var record = records.ElementAt(index);
+
+            var win = new MedicalHistoryWindow(record.Id.ToString());
+            win.ShowDialog();
         }
 
-        // 💉 Додати Checkup у вже існуючий запис
+        // 💉 Додати Checkup до вже існуючої картки
         private void AddCheckup_Click(object sender, RoutedEventArgs e)
         {
-            if (MedicalGrid.SelectedIndex < 0)
+            int index = MedicalGrid.SelectedIndex;
+            if (index < 0)
             {
                 MessageBox.Show("Select a record first.", "Error",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var dialog = new AddMedicalWindow();
+            var records = _medicalService.GetAllRecords();
+            var record = records.ElementAt(index);
+
+            var animal = _animalsCollection.Find(a => a.Id == record.AnimalId).FirstOrDefault();
+            if (animal == null)
+            {
+                MessageBox.Show("Animal not found for this record.");
+                return;
+            }
+
+            var dialog = new AddMedicalWindow(animal); // зафіксована тварина
             if (dialog.ShowDialog() == true)
             {
                 LoadRecords();
+                _log.Write(_username, "Add Checkup", $"Checkup added to animal {animal.Name}");
             }
-            _log.Write(_username, "Add Checkup", $"Checkup added to animal record");
-
         }
+
+        // ✏️ Редагувати останній checkup
         private void EditCheckup_Click(object sender, RoutedEventArgs e)
         {
             int index = MedicalGrid.SelectedIndex;
@@ -128,7 +161,10 @@ namespace ZooApp.Views
             var records = _medicalService.GetAllRecords();
             var record = records.ElementAt(index);
 
-            var lastCheckup = record.Checkups.OrderByDescending(c => c.Date).FirstOrDefault();
+            var lastCheckup = record.Checkups
+                .OrderByDescending(c => c.Date)
+                .FirstOrDefault();
+
             if (lastCheckup == null)
             {
                 MessageBox.Show("This record has no checkups to edit.");
@@ -138,49 +174,49 @@ namespace ZooApp.Views
             var dialog = new EditMedicalWindow(lastCheckup);
             if (dialog.ShowDialog() == true)
             {
-                _medicalService.UpdateLatestCheckup(record.Id.ToString(), dialog.UpdatedCheckup);
+                _medicalService.UpdateLatestCheckup(record.Id, dialog.UpdatedCheckup);
                 LoadRecords();
-            }
-            _log.Write(_username, "Edit Checkup", $"Updated checkup for record {record.Id}");
 
+                _log.Write(_username, "Edit Checkup", $"Updated checkup for record {record.Id}");
+            }
         }
 
-        // ❌ Видалити
+        // ❌ Видалити картку
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
-            var records = _medicalService.GetAllRecords();
-            if (!records.Any())
+            int index = MedicalGrid.SelectedIndex;
+            if (index < 0)
             {
-                MessageBox.Show("No records to delete.");
+                MessageBox.Show("Select a record first.");
                 return;
             }
 
-            var record = records.ElementAtOrDefault(MedicalGrid.SelectedIndex);
-            if (record != null)
-            {
-                _medicalService.DeleteRecord(record.Id.ToString());
-                LoadRecords();
-            }
-            _log.Write(_username, "Delete Medical Record", $"RecordId={record.Id}");
+            var records = _medicalService.GetAllRecords();
+            var record = records.ElementAt(index);
 
+            if (MessageBox.Show("Delete this medical record?", "Confirm",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                return;
+
+            _medicalService.DeleteRecord(record.Id);
+            LoadRecords();
+
+            _log.Write(_username, "Delete Medical Record", $"RecordId={record.Id}");
         }
 
         // 🔍 Пошук
         private void Find_Click(object sender, RoutedEventArgs e)
         {
             string query = SearchBox.Text.Trim().ToLower();
-            var records = string.IsNullOrEmpty(query)
+
+            var animals = _animalsCollection.Find(_ => true).ToList();
+            var records = string.IsNullOrEmpty(query) || query == "search..."
                 ? _medicalService.GetAllRecords()
                 : _medicalService.SearchByDiseaseOrVaccine(query);
 
-            var context = new MongoDbContext("mongodb://localhost:27017", "test");
-            var animals = context.Animals.Find(_ => true).ToList();
-
             var view = records.Select(r =>
             {
-                var animal = animals.FirstOrDefault(a =>
-                    r.AnimalId != null && a.Id == r.AnimalId.ToString());
-
+                var animal = animals.FirstOrDefault(a => a.Id == r.AnimalId);
                 var last = r.Checkups.OrderByDescending(c => c.Date).FirstOrDefault();
 
                 return new
@@ -227,7 +263,7 @@ namespace ZooApp.Views
             if (SearchBox.Text == "Search...")
             {
                 SearchBox.Text = "";
-                SearchBox.Foreground = System.Windows.Media.Brushes.Black;
+                SearchBox.Foreground = Brushes.Black;
             }
         }
 
@@ -236,7 +272,7 @@ namespace ZooApp.Views
             if (string.IsNullOrWhiteSpace(SearchBox.Text))
             {
                 SearchBox.Text = "Search...";
-                SearchBox.Foreground = System.Windows.Media.Brushes.Gray;
+                SearchBox.Foreground = Brushes.Gray;
             }
         }
     }

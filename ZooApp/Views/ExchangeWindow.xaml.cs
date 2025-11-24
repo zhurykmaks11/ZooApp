@@ -91,6 +91,10 @@ namespace ZooApp.Views
                 LoadData();
             }
         }
+        private void Partners_Click(object sender, RoutedEventArgs e)
+        {
+            new ZooPartnersWindow().ShowDialog();
+        }
 
         private void Delete_Click(object sender, RoutedEventArgs e)
         {

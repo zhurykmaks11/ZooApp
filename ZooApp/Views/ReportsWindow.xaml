@@ -1,0 +1,296 @@
+﻿<Window x:Class="ZooApp.Views.ReportsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Reports"
+        Height="650"
+        Width="1100"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>   <!-- Header -->
+            <RowDefinition Height="Auto"/>   <!-- Selector + Run -->
+            <RowDefinition Height="Auto"/>   <!-- Params -->
+            <RowDefinition Height="*"/>      <!-- DataGrid -->
+            <RowDefinition Height="Auto"/>   <!-- Summary -->
+        </Grid.RowDefinitions>
+
+        <!-- HEADER -->
+        <TextBlock Grid.Row="0"
+                   Text="Звіти (10 варіантів запитів)"
+                   FontSize="20"
+                   FontWeight="Bold"
+                   Margin="0,0,0,10"/>
+
+        <!-- SELECTOR + RUN -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Обрати запит:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,0"/>
+            <ComboBox x:Name="ReportSelector"
+                      Width="500"
+                      SelectionChanged="ReportSelector_SelectionChanged">
+                <ComboBoxItem Tag="1"
+                              Content="1) Тварини: загальна кількість + фільтр по виду, клітці, сортування за віком/вагою/зростом"/>
+                <ComboBoxItem Tag="2"
+                              Content="2) Тварини: щеплення, хвороби, вік, потомство"/>
+                <ComboBoxItem Tag="3"
+                              Content="3) Працівники, відповідальні за вид / особину, та з доступом до кліток"/>
+                <ComboBoxItem Tag="4"
+                              Content="4) Постачальники кормів (за типом корму)"/>
+                <ComboBoxItem Tag="5"
+                              Content="5) Тварини, що потребують певного корму у сезон"/>
+                <ComboBoxItem Tag="6"
+                              Content="6) Повна інформація про тварин + потенційне потомство"/>
+                <ComboBoxItem Tag="7"
+                              Content="7) Зоопарки-партнери, з якими був обмін тваринами"/>
+                <ComboBoxItem Tag="8"
+                              Content="8) Працівники: категорія, стаж, стать, вік, зарплата"/>
+                <ComboBoxItem Tag="9"
+                              Content="9) Тварини, які потребують теплого приміщення на зиму"/>
+                <ComboBoxItem Tag="10"
+                              Content="10) Список та обсяг кормів, якими зоопарк забезпечує себе"/>
+            </ComboBox>
+
+            <Button x:Name="RunButton"
+                    Content="▶ Запустити"
+                    Width="130"
+                    Height="32"
+                    Margin="10,0,0,0"
+                    Click="RunButton_Click"/>
+            
+            <Button Content="⬅ Back"
+                    Width="100"
+                    Margin="10,0,0,0"
+                    Click="Back_Click"/>
+
+        </StackPanel>
+
+        <!-- PARAMS PANEL (всередині – 10 груп) -->
+        <Border Grid.Row="2"
+                BorderBrush="Gray"
+                BorderThickness="1"
+                Padding="10"
+                Margin="0,0,0,10">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          Height="140">
+                <StackPanel x:Name="ParamsRoot" Orientation="Vertical">
+
+                    <!-- ==================== PARAMS FOR QUERY 1 ==================== -->
+                    <GroupBox x:Name="Params_Q1" Header="Запит 1: тварини, фільтр по виду/клітці, сортування" Visibility="Visible">
+                        <StackPanel Margin="5">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Вид тварини (species, опц.):" Width="200"/>
+                                <TextBox x:Name="Q1_SpeciesBox" Width="250"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Клітка:" Width="200"/>
+                                <ComboBox x:Name="Q1_CageCombo" Width="250"
+                                          DisplayMemberPath="Location"
+                                          SelectedValuePath="IdString"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Сортувати за:" Width="200"/>
+                                <ComboBox x:Name="Q1_SortCombo" Width="250">
+                                    <ComboBoxItem Content="Без сортування" Tag="none" IsSelected="True"/>
+                                    <ComboBoxItem Content="Вік" Tag="age"/>
+                                    <ComboBoxItem Content="Вага" Tag="weight"/>
+                                    <ComboBoxItem Content="Зріст" Tag="height"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- ==================== PARAMS FOR QUERY 2 ==================== -->
+                    <GroupBox x:Name="Params_Q2" Header="Запит 2: щеплення, хвороби, стать, вік, потомство" Visibility="Collapsed">
+                        <StackPanel Margin="5">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Щеплення містить:" Width="200"/>
+                                <TextBox x:Name="Q2_VaccineBox" Width="250"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Хвороба містить:" Width="200"/>
+                                <TextBox x:Name="Q2_IllnessBox" Width="250"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Стать:" Width="200"/>
+                                <ComboBox x:Name="Q2_GenderCombo" Width="250">
+                                    <ComboBoxItem Content="(будь-яка)" Tag="any" IsSelected="True"/>
+                                    <ComboBoxItem Content="male" Tag="male"/>
+                                    <ComboBoxItem Content="female" Tag="female"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Мін. вік (років):" Width="200"/>
+                                <TextBox x:Name="Q2_MinAgeBox" Width="80"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Мін. кількість потомства:" Width="200"/>
+                                <TextBox x:Name="Q2_MinOffspringBox" Width="80"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- ==================== PARAMS FOR QUERY 3 ==================== -->
+                    <GroupBox x:Name="Params_Q3" Header="Запит 3: працівники, відповідальні за вид / особину" Visibility="Collapsed">
+                        <StackPanel Margin="5">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Вид тварини:" Width="200"/>
+                                <TextBox x:Name="Q3_SpeciesBox" Width="250"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Конкретна тварина:" Width="200"/>
+                                <ComboBox x:Name="Q3_AnimalCombo"
+                                          Width="250"
+                                          DisplayMemberPath="DisplayName"
+                                          SelectedValuePath="Id"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- ==================== PARAMС FOR QUERY 4 ==================== -->
+                    <GroupBox x:Name="Params_Q4" Header="Запит 4: постачальники кормів" Visibility="Collapsed">
+                        <StackPanel Margin="5">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Тип корму (фільтр):" Width="200"/>
+                                <TextBox x:Name="Q4_FeedTypeBox" Width="250"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- ==================== PARAMS FOR QUERY 5 ==================== -->
+                    <GroupBox x:Name="Params_Q5" Header="Запит 5: тварини, що потребують певного корму у сезон" Visibility="Collapsed">
+                        <StackPanel Margin="5">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Тип корму:" Width="200"/>
+                                <TextBox x:Name="Q5_FeedTypeBox" Width="250"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Сезон:" Width="200"/>
+                                <ComboBox x:Name="Q5_SeasonCombo" Width="250">
+                                    <ComboBoxItem Content="(будь-який)" Tag="any" IsSelected="True"/>
+                                    <ComboBoxItem Content="зима" Tag="зима"/>
+                                    <ComboBoxItem Content="весна" Tag="весна"/>
+                                    <ComboBoxItem Content="літо" Tag="літо"/>
+                                    <ComboBoxItem Content="осінь" Tag="осінь"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- ==================== PARAMS FOR QUERY 6 ==================== -->
+                    <GroupBox x:Name="Params_Q6" Header="Запит 6: повна інформація про тварин / потенційне потомство" Visibility="Collapsed">
+                        <StackPanel Margin="5">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Вид тварини:" Width="200"/>
+                                <TextBox x:Name="Q6_SpeciesBox" Width="250"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Клітка:" Width="200"/>
+                                <ComboBox x:Name="Q6_CageCombo" Width="250"
+                                          DisplayMemberPath="Location"
+                                          SelectedValuePath="IdString"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Ім'я містить:" Width="200"/>
+                                <TextBox x:Name="Q6_NameBox" Width="250"/>
+                            </StackPanel>
+                            <CheckBox x:Name="Q6_OnlyPotentialParents"
+                                      Content="Тільки особини, від яких можна очікувати потомства"
+                                      Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- ==================== PARAMS FOR QUERY 7 ==================== -->
+                    <GroupBox x:Name="Params_Q7" Header="Запит 7: зоопарки-партнери (обмін тваринами)" Visibility="Collapsed">
+                        <StackPanel Margin="5">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Вид тварини (для фільтра):" Width="200"/>
+                                <TextBox x:Name="Q7_SpeciesBox" Width="250"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- ==================== PARAMS FOR QUERY 8 ==================== -->
+                    <GroupBox x:Name="Params_Q8" Header="Запит 8: працівники – категорія, стаж, стать, зарплата" Visibility="Collapsed">
+                        <StackPanel Margin="5">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Категорія:" Width="200"/>
+                                <ComboBox x:Name="Q8_CategoryCombo" Width="250">
+                                    <ComboBoxItem Content="(будь-яка)" Tag="any" IsSelected="True"/>
+                                    <ComboBoxItem Content="ветеринар"/>
+                                    <ComboBoxItem Content="прибиральник"/>
+                                    <ComboBoxItem Content="дресирувальник"/>
+                                    <ComboBoxItem Content="будівельник"/>
+                                    <ComboBoxItem Content="адміністрація"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Стать:" Width="200"/>
+                                <ComboBox x:Name="Q8_GenderCombo" Width="250">
+                                    <ComboBoxItem Content="(будь-яка)" Tag="any" IsSelected="True"/>
+                                    <ComboBoxItem Content="male" Tag="male"/>
+                                    <ComboBoxItem Content="female" Tag="female"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Мін. стаж (років):" Width="200"/>
+                                <TextBox x:Name="Q8_MinYearsBox" Width="80"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Мін. зарплата:" Width="200"/>
+                                <TextBox x:Name="Q8_MinSalaryBox" Width="80"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- ==================== PARAMS FOR QUERY 9 ==================== -->
+                    <GroupBox x:Name="Params_Q9" Header="Запит 9: тварини, що потребують теплого приміщення" Visibility="Collapsed">
+                        <StackPanel Margin="5">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Вид тварини:" Width="200"/>
+                                <TextBox x:Name="Q9_SpeciesBox" Width="250"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Мін. вік (років):" Width="200"/>
+                                <TextBox x:Name="Q9_MinAgeBox" Width="80"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- ==================== PARAMS FOR QUERY 10 ==================== -->
+                    <GroupBox x:Name="Params_Q10" Header="Запит 10: корми, якими зоопарк забезпечує себе" Visibility="Collapsed">
+                        <StackPanel Margin="5">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Режим:" Width="200"/>
+                                <ComboBox x:Name="Q10_ModeCombo" Width="250">
+                                    <ComboBoxItem Content="Усі корми" Tag="all" IsSelected="True"/>
+                                    <ComboBoxItem Content="Тільки без постачальників (виготовляються зоопарком)" Tag="internal"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- DATAGRID -->
+        <DataGrid x:Name="ReportsGrid"
+                  Grid.Row="3"
+                  AutoGenerateColumns="True"
+                  CanUserAddRows="False"
+                  IsReadOnly="True"
+                  AlternatingRowBackground="LightGray"
+                  GridLinesVisibility="All"
+                  RowHeight="28"
+                  FontSize="13"/>
+
+        <!-- SUMMARY -->
+        <TextBlock x:Name="SummaryText"
+                   Grid.Row="4"
+                   Margin="0,5,0,0"
+                   FontStyle="Italic"
+                   Foreground="DarkSlateGray"/>
+    </Grid>
+</Window>

@@ -1,10 +1,11 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
+using System.Collections.Generic;
 
 namespace ZooApp.Models
 {
-    [BsonIgnoreExtraElements]   // ⬅ ДОДАТИ
+    [BsonIgnoreExtraElements]
     public class Animal
     {
         [BsonId]
@@ -29,6 +30,9 @@ namespace ZooApp.Models
         [BsonElement("height")]
         public double Height { get; set; }
 
+        /// <summary>
+        /// "herbivore" / "predator"
+        /// </summary>
         [BsonElement("type")]
         public string Type { get; set; }
 
@@ -38,18 +42,6 @@ namespace ZooApp.Models
         [BsonElement("cageId")]
         [BsonRepresentation(BsonType.ObjectId)]
         public string CageId { get; set; }
-        
-        [BsonIgnore]
-        public string DisplayName
-        {
-            get
-            {
-                string smallId = !string.IsNullOrEmpty(Id) ? Id.Substring(0, 6) : "new";
-                string year = BirthDate != DateTime.MinValue ? BirthDate.Year.ToString() : "unknown";
-                return $"[{smallId}]{Name} ({Species}, {Gender}, {year})";
-            }
-        }
-
 
         [BsonElement("feedingScheduleId")]
         [BsonRepresentation(BsonType.ObjectId)]
@@ -58,5 +50,42 @@ namespace ZooApp.Models
         [BsonElement("medicalRecordId")]
         [BsonRepresentation(BsonType.ObjectId)]
         public string MedicalRecordId { get; set; }
+
+        // 🔥 НОВІ ПОЛЯ — для зимівлі, ізоляції, родини
+
+        [BsonElement("needsWarmShelter")]
+        public bool NeedsWarmShelter { get; set; }
+
+        [BsonElement("isIsolated")]
+        public bool IsIsolated { get; set; }
+
+        [BsonElement("isolationReason")]
+        public string IsolationReason { get; set; }
+
+        [BsonElement("motherId")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string MotherId { get; set; }
+
+        [BsonElement("fatherId")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string FatherId { get; set; }
+
+        [BsonElement("childrenIds")]
+        public List<string> ChildrenIds { get; set; } = new();
+        
+        [BsonElement("employeesAssigned")]
+        public List<string> EmployeesAssigned { get; set; } = new();
+
+        // 🟢 Зручне відображення
+        [BsonIgnore]
+        public string DisplayName
+        {
+            get
+            {
+                string smallId = !string.IsNullOrEmpty(Id) && Id.Length >= 6 ? Id.Substring(0, 6) : "new";
+                string year = BirthDate != DateTime.MinValue ? BirthDate.Year.ToString() : "unknown";
+                return $"[{smallId}] {Name} ({Species}, {Gender}, {year})";
+            }
+        }
     }
 }

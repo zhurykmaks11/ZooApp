@@ -1,6 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
-using System;
+﻿using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Linq;
 using ZooApp.Data;
@@ -10,133 +8,105 @@ namespace ZooApp.Services
 {
     public class MedicalService
     {
-        private readonly IMongoCollection<MedicalRecord> _medicalCollection;
+        private readonly IMongoCollection<MedicalRecord> _records;
         private readonly IMongoCollection<Animal> _animals;
 
         public MedicalService(MongoDbContext context)
         {
-            _medicalCollection = context.MedicalRecords;
+            _records = context.MedicalRecords;
             _animals = context.Animals;
         }
 
         // ✅ Отримати всі медичні записи
         public List<MedicalRecord> GetAllRecords()
         {
-            return _medicalCollection.Find(_ => true).ToList();
+            return _records.Find(_ => true).ToList();
         }
 
-        // ✅ Отримати останні обстеження (для таблиці)
-        public List<(string AnimalName, DateTime Date, double Weight, double Height)> GetLatestCheckups()
-        {
-            var animals = _animals.Find(_ => true).ToList();
-            var records = _medicalCollection.Find(_ => true).ToList();
-
-            return records.Select(r =>
-            {
-                // 🩺 Шукаємо тварину по рядковому ID
-                var animal = animals.FirstOrDefault(a => a.Id.ToString() == r.AnimalId);
-
-                var lastCheck = r.Checkups.OrderByDescending(c => c.Date).FirstOrDefault();
-
-                return (
-                    animal?.Name ?? "Unknown",
-                    lastCheck?.Date ?? DateTime.MinValue,
-                    lastCheck?.Weight ?? 0,
-                    lastCheck?.Height ?? 0
-                );
-            }).ToList();
-        }
-
-        // ✅ Додати новий медичний запис
+        // ✅ Додати нову медичну картку
         public void AddMedicalRecord(MedicalRecord record)
         {
-            _medicalCollection.InsertOne(record);
+            _records.InsertOne(record);
+
+            // оновлюємо посилання в тварині (якщо є поле MedicalRecordId)
+            _animals.UpdateOne(
+                a => a.Id == record.AnimalId,
+                Builders<Animal>.Update.Set(a => a.MedicalRecordId, record.Id)
+            );
         }
 
-        // ✅ Додати новий огляд до існуючого запису
+        // ✅ Додати checkup до існуючої картки
         public void AddCheckup(string recordId, Checkup checkup)
         {
-            if (!ObjectId.TryParse(recordId, out var objectId))
-                return;
-
             var update = Builders<MedicalRecord>.Update.Push(r => r.Checkups, checkup);
-            _medicalCollection.UpdateOne(r => r.Id == objectId, update);
+            _records.UpdateOne(r => r.Id == recordId, update);
         }
 
-        // ✅ Видалити медичний запис
+        // ✅ Оновити останній checkup у картці
+        public void UpdateLatestCheckup(string recordId, Checkup updatedCheckup)
+        {
+            var record = _records.Find(r => r.Id == recordId).FirstOrDefault();
+            if (record == null || record.Checkups.Count == 0)
+                return;
+
+            // вважаємо, що останній — по даті
+            var ordered = record.Checkups
+                .OrderBy(c => c.Date)
+                .ToList();
+
+            ordered[ordered.Count - 1] = updatedCheckup;
+            record.Checkups = ordered;
+
+            _records.ReplaceOne(r => r.Id == recordId, record);
+        }
+
+        // ✅ Видалити медичну картку
         public void DeleteRecord(string id)
         {
-            if (!ObjectId.TryParse(id, out var objectId))
-                return;
+            _records.DeleteOne(r => r.Id == id);
 
-            _medicalCollection.DeleteOne(r => r.Id == objectId);
+            // можна за бажанням очистити MedicalRecordId в тварині
+            _animals.UpdateOne(
+                a => a.MedicalRecordId == id,
+                Builders<Animal>.Update.Set(a => a.MedicalRecordId, null)
+            );
         }
 
-        // ✅ Знайти записи за назвою тварини
-        public List<MedicalRecord> GetRecordsByAnimal(string animalName)
+        // ✅ Пошук по хворобах / вакцинаціях (для Find)
+        public List<MedicalRecord> SearchByDiseaseOrVaccine(string query)
         {
-            var animals = _animals
-                .Find(a => a.Name.ToLower().Contains(animalName.ToLower()))
-                .ToList();
+            query = query.ToLower();
 
-            var animalIds = animals.Select(a => a.Id.ToString()).ToList();
+            var all = _records.Find(_ => true).ToList();
 
-            return _medicalCollection
-                .Find(r => animalIds.Contains(r.AnimalId))
-                .ToList();
-        }
-        
-        public void UpdateLatestCheckup(string recordId, Checkup updated)
-        {
-            if (!ObjectId.TryParse(recordId, out var objectId))
-                return;
-
-            // 1️⃣ шукаємо медичний запис
-            var record = _medicalCollection.Find(r => r.Id == objectId).FirstOrDefault();
-            if (record == null) return;
-
-            // 2️⃣ беремо останній checkup
-            var last = record.Checkups.OrderByDescending(c => c.Date).FirstOrDefault();
-            if (last == null) return;
-
-            // 3️⃣ змінюємо його
-            last.Date = updated.Date;
-            last.Weight = updated.Weight;
-            last.Height = updated.Height;
-            last.Vaccinations = updated.Vaccinations;
-            last.Illnesses = updated.Illnesses;
-            last.Treatment = updated.Treatment;
-
-            // 4️⃣ оновлюємо весь запис в базі
-            _medicalCollection.ReplaceOne(r => r.Id == objectId, record);
+            return all.Where(r =>
+                r.Checkups.Any(c =>
+                    c.Vaccinations.Any(v => v.ToLower().Contains(query)) ||
+                    c.Illnesses.Any(i => i.ToLower().Contains(query)) ||
+                    (!string.IsNullOrEmpty(c.Treatment) &&
+                     c.Treatment.ToLower().Contains(query))
+                )
+            ).ToList();
         }
 
-
-        // ✅ Пошук за хворобою або щепленням
-        public List<MedicalRecord> SearchByDiseaseOrVaccine(string keyword)
-        {
-            keyword = keyword.ToLower();
-
-            var allRecords = _medicalCollection.Find(_ => true).ToList();
-
-            return allRecords
-                .Where(r => r.Checkups.Any(c =>
-                    c.Vaccinations.Any(v => v.ToLower().Contains(keyword)) ||
-                    c.Illnesses.Any(i => i.ToLower().Contains(keyword))
-                ))
-                .ToList();
-        }
-
-        // ✅ Статистика за щепленнями
+        // ✅ Статистика вакцинацій
         public Dictionary<string, int> GetVaccinationStatistics()
         {
-            var records = _medicalCollection.Find(_ => true).ToList();
+            var all = _records.Find(_ => true).ToList();
 
-            return records
+            return all
                 .SelectMany(r => r.Checkups)
                 .SelectMany(c => c.Vaccinations)
+                .Select(v => v.Trim())
+                .Where(v => !string.IsNullOrWhiteSpace(v))
                 .GroupBy(v => v)
                 .ToDictionary(g => g.Key, g => g.Count());
         }
+        
+        public MedicalRecord GetRecord(string id)
+        {
+            return _records.Find(r => r.Id == id).FirstOrDefault();
+        }
+
     }
 }

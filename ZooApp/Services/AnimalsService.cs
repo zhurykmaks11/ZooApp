@@ -20,6 +20,26 @@ namespace ZooApp.Services
             return _animals.Find(_ => true).ToList();
         }
 
+        // ✅ Додати потомство до батьків
+        public void AddChild(string motherId, string fatherId, string childId)
+        {
+            if (!string.IsNullOrEmpty(motherId))
+            {
+                _animals.UpdateOne(
+                    a => a.Id == motherId,
+                    Builders<Animal>.Update.Push(a => a.ChildrenIds, childId)
+                );
+            }
+
+            if (!string.IsNullOrEmpty(fatherId))
+            {
+                _animals.UpdateOne(
+                    a => a.Id == fatherId,
+                    Builders<Animal>.Update.Push(a => a.ChildrenIds, childId)
+                );
+            }
+        }
+
         // ✅ Додати тварину
         public void AddAnimal(Animal animal)
         {

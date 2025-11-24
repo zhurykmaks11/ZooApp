@@ -5,20 +5,6 @@ using System.Collections.Generic;
 
 namespace ZooApp.Models
 {
-    public class MedicalRecord
-    {
-        [BsonId]
-        public ObjectId Id { get; set; }
-
-        // ✅ Використовуємо string, щоб не було конфліктів із Animal.Id
-        [BsonElement("animalId")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string AnimalId { get; set; }
-
-        [BsonElement("checkups")]
-        public List<Checkup> Checkups { get; set; } = new();
-    }
-
     public class Checkup
     {
         [BsonElement("date")]
@@ -37,6 +23,21 @@ namespace ZooApp.Models
         public List<string> Illnesses { get; set; } = new();
 
         [BsonElement("treatment")]
-        public string Treatment { get; set; } = string.Empty;
+        public string Treatment { get; set; }
+    }
+
+    public class MedicalRecord
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
+
+        // посилання на тварину (string, бо Animal.Id — string)
+        [BsonElement("animalId")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string AnimalId { get; set; }
+
+        [BsonElement("checkups")]
+        public List<Checkup> Checkups { get; set; } = new();
     }
 }

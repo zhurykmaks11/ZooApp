@@ -189,6 +189,34 @@ namespace ZooApp.Views
                 SearchBox.Foreground = Brushes.Gray;
             }
         }
+        private void FilterAnimals_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new FeedFilterWindow();
+
+            if (dialog.ShowDialog() == true)
+            {
+                var animals = _feedingService.GetUniqueAnimalsByFeedAndSeason(dialog.FeedType, dialog.Season);
+
+                if (animals.Count == 0)
+                {
+                    MessageBox.Show("No animals match this filter.");
+                    return;
+                }
+
+                var list = string.Join("\n", animals);
+
+                MessageBox.Show(
+                    $"Animals that eat '{dialog.FeedType}' in '{dialog.Season}':\n\n{list}",
+                    "Filtered Animals",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information
+                );
+
+                _log.Write(_username,
+                    "Filter Animals",
+                    $"Feed={dialog.FeedType}, Season={dialog.Season}, Count={animals.Count}");
+            }
+        }
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {

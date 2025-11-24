@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using MongoDB.Driver;
 using ZooApp.Data;
+using ZooApp.Models;
 using ZooApp.Services;
 
 namespace ZooApp.Views
@@ -10,19 +10,24 @@ namespace ZooApp.Views
     {
         private readonly CagesService _service;
         private readonly MongoDbContext _context;
+        private readonly LogService _log;
+        private readonly string _username;
 
-        public MoveAnimalWindow()
+        public MoveAnimalWindow(string username)
         {
             InitializeComponent();
+
+            _username = username;
+
             _context = new MongoDbContext("mongodb://localhost:27017", "test");
             _service = new CagesService(_context);
+            _log = new LogService(_context);
 
             LoadData();
         }
 
         private void LoadData()
         {
-            
             var animals = _context.Animals.Find(a => a.CageId != null).ToList();
             AnimalBox.ItemsSource = animals;
             AnimalBox.DisplayMemberPath = "DisplayName";
@@ -47,14 +52,22 @@ namespace ZooApp.Views
                 CageBox.SelectedValue.ToString()
             );
 
-            MessageBox.Show(ok ? "✅ Animal moved!" : "❌ Move failed");
-
-            if (ok)
+            if (!ok)
             {
-                DialogResult = true;
-                Close(); // додати!
+                MessageBox.Show("❌ Move failed");
+                return;
             }
 
+            var animal = AnimalBox.SelectedItem as Animal;
+            var cage = CageBox.SelectedItem;
+            string cageLocation = cage?.GetType().GetProperty("Location")?.GetValue(cage)?.ToString() ?? "?";
+
+            _log.Write(_username, "Move Animal",
+                $"Animal={animal?.Name}, NewCage={cageLocation}");
+
+            MessageBox.Show("✅ Animal moved!");
+            DialogResult = true;
+            Close();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)

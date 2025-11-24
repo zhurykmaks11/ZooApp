@@ -21,7 +21,6 @@ namespace ZooApp.Views
             _username = username;
 
             var context = new MongoDbContext("mongodb://localhost:27017", "test");
-
             _service = new SupplierService(context);
             _log = new LogService(context);
 
@@ -31,13 +30,21 @@ namespace ZooApp.Views
 
         private void ApplyRoleRules()
         {
-            if (_role == "operator")
+            switch (_role.ToLower())
             {
-                AddButton.IsEnabled = false;
-                EditButton.IsEnabled = false;
-                DeleteButton.IsEnabled = false;
+                case "admin":
+                    break;
+
+                case "operator":
+                case "authorized":
+                case "guest":
+                    AddButton.IsEnabled = false;
+                    EditButton.IsEnabled = false;
+                    DeleteButton.IsEnabled = false;
+                    break;
             }
         }
+
 
         private void LoadData()
         {
@@ -51,7 +58,9 @@ namespace ZooApp.Views
             if (win.ShowDialog() == true)
             {
                 _service.Add(win.Supplier);
-                _log.Write(_username, "Add Supplier", $"Supplier={win.Supplier.Name}");
+
+                _log.Write(_username, "Add Supplier",
+                    $"Supplier={win.Supplier.Name}");
 
                 LoadData();
             }
@@ -70,7 +79,9 @@ namespace ZooApp.Views
             if (win.ShowDialog() == true)
             {
                 _service.Update(win.Supplier);
-                _log.Write(_username, "Edit Supplier", $"Supplier={win.Supplier.Name}");
+
+                _log.Write(_username, "Edit Supplier",
+                    $"Supplier={win.Supplier.Name}");
 
                 LoadData();
             }
@@ -84,8 +95,14 @@ namespace ZooApp.Views
                 return;
             }
 
+            if (MessageBox.Show($"Delete supplier {s.Name}?", "Confirm",
+                MessageBoxButton.YesNo) != MessageBoxResult.Yes)
+                return;
+
             _service.Delete(s.Id);
-            _log.Write(_username, "Delete Supplier", $"Supplier={s.Name}");
+
+            _log.Write(_username, "Delete Supplier",
+                $"Supplier={s.Name}");
 
             LoadData();
         }
@@ -93,6 +110,13 @@ namespace ZooApp.Views
         private void Find_Click(object sender, RoutedEventArgs e)
         {
             string text = SearchBox.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(text) || text == "Search...")
+            {
+                LoadData();
+                return;
+            }
+
             SuppliersGrid.ItemsSource = _service.Search(text);
         }
 

@@ -14,25 +14,51 @@ namespace ZooApp.Views
 
         private readonly MongoDbContext _context;
 
-        // -------------------- ADD --------------------
         public AddExchangeWindow()
         {
             InitializeComponent();
             _context = new MongoDbContext("mongodb://localhost:27017", "test");
 
+            Record = new ExchangeRecord();
+
             LoadAnimals();
             DateBox.SelectedDate = DateTime.Now;
+        }
+
+        public AddExchangeWindow(ExchangeRecord existing)
+        {
+            InitializeComponent();
+            _context = new MongoDbContext("mongodb://localhost:27017", "test");
+
+            Record = existing;
+
+            LoadAnimals();
+
+            AnimalBox.SelectedValue = existing.AnimalId;
+            DateBox.SelectedDate = existing.ExchangeDate;
+            ZooBox.Text = existing.OtherZoo;
+            ReasonBox.Text = existing.Reason;
+
+            foreach (ComboBoxItem item in TypeBox.Items)
+            {
+                if (item.Content.ToString() == existing.ExchangeType)
+                {
+                    TypeBox.SelectedItem = item;
+                    break;
+                }
+            }
         }
 
         private void LoadAnimals()
         {
             var animals = _context.Animals.Find(_ => true).ToList();
             AnimalBox.ItemsSource = animals;
+            AnimalBox.DisplayMemberPath = "DisplayName";
+            AnimalBox.SelectedValuePath = "Id";
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            // ✅ Валідація
             if (AnimalBox.SelectedItem == null)
             {
                 AnimalBox.BorderBrush = Brushes.Red;
@@ -59,15 +85,12 @@ namespace ZooApp.Views
 
             int age = DateTime.Now.Year - animal.BirthDate.Year;
 
-            Record = new ExchangeRecord
-            {
-                AnimalId = animal.Id,
-                AnimalName = $"{animal.Name} ({animal.Gender}, {age}y)",
-                ExchangeDate = DateBox.SelectedDate ?? DateTime.Now,
-                ExchangeType = type,
-                OtherZoo = ZooBox.Text.Trim(),
-                Reason = ReasonBox.Text.Trim()
-            };
+            Record.AnimalId = animal.Id;
+            Record.AnimalName = $"{animal.Name} ({animal.Gender}, {age}y)";
+            Record.ExchangeDate = DateBox.SelectedDate ?? DateTime.Now;
+            Record.ExchangeType = type;
+            Record.OtherZoo = ZooBox.Text.Trim();
+            Record.Reason = ReasonBox.Text.Trim();
 
             DialogResult = true;
             Close();
@@ -77,32 +100,6 @@ namespace ZooApp.Views
         {
             DialogResult = false;
             Close();
-        }
-
-        // -------------------- EDIT --------------------
-        public AddExchangeWindow(ExchangeRecord existing)
-        {
-            InitializeComponent();
-            _context = new MongoDbContext("mongodb://localhost:27017", "test");
-
-            LoadAnimals();
-
-            Record = existing;
-
-            // Заповнюємо поля
-            AnimalBox.SelectedValue = existing.AnimalId;
-            DateBox.SelectedDate = existing.ExchangeDate;
-            ZooBox.Text = existing.OtherZoo;
-            ReasonBox.Text = existing.Reason;
-
-            foreach (ComboBoxItem item in TypeBox.Items)
-            {
-                if (item.Content.ToString() == existing.ExchangeType)
-                {
-                    TypeBox.SelectedItem = item;
-                    break;
-                }
-            }
         }
     }
 }

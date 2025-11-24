@@ -15,31 +15,47 @@ namespace ZooApp.Views
         public ExchangeWindow(string role, string username)
         {
             InitializeComponent();
-            _role = role;
 
+            _role = role.ToLower();
             _username = username;
+
             var context = new MongoDbContext("mongodb://localhost:27017", "test");
+
             _service = new ExchangeService(context);
             _log = new LogService(context);
+
             LoadData();
+            ApplyRoleRules();
+        }
 
-            // 🔐 Обмеження для оператора
-            if (_role == "Operator")
+        private void ApplyRoleRules()
+        {
+            switch (_role.ToLower())
             {
-                MessageBox.Show("Operator role. Editing is disabled.");
+                case "admin":
+                    break; // повний доступ
 
-                EditButton.IsEnabled = false;
-                DeleteButton.IsEnabled = false;
+                case "operator":
+                    // оператор може тільки ADD
+                    EditButton.IsEnabled = false;
+                    DeleteButton.IsEnabled = false;
+                    break;
+
+                case "authorized":
+                case "guest":
+                    AddButton.IsEnabled = false;
+                    EditButton.IsEnabled = false;
+                    DeleteButton.IsEnabled = false;
+                    break;
             }
         }
 
-        // 📌 Завантаження таблиці
+
         private void LoadData()
         {
             ExchangeGrid.ItemsSource = _service.GetAll();
         }
 
-        // ➕ Додати запис
         private void Add_Click(object sender, RoutedEventArgs e)
         {
             var win = new AddExchangeWindow();
@@ -55,7 +71,6 @@ namespace ZooApp.Views
             }
         }
 
-        // ✏️ Редагувати запис
         private void Edit_Click(object sender, RoutedEventArgs e)
         {
             if (ExchangeGrid.SelectedItem is not ExchangeRecord selected)
@@ -87,13 +102,11 @@ namespace ZooApp.Views
 
             _service.Delete(selected.Id);
 
-            _log.Write(_username, "Delete Exchange", 
-                $"Animal={selected.AnimalName}");
+            _log.Write(_username, "Delete Exchange", $"Animal={selected.AnimalName}");
 
             LoadData();
         }
 
-        // 🔍 Пошук
         private void Find_Click(object sender, RoutedEventArgs e)
         {
             string text = SearchBox.Text.Trim();
@@ -125,7 +138,6 @@ namespace ZooApp.Views
             }
         }
 
-        // 🔙 Назад
         private void Back_Click(object sender, RoutedEventArgs e)
         {
             new MainWindow(_role, _username).Show();

@@ -1,8 +1,11 @@
 ﻿<Window x:Class="ZooApp.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="ZooApp" Height="600" Width="600"
+        Title="ZooApp"
+        Height="900"
+        Width="1000"
         WindowStartupLocation="CenterScreen">
+
     <Grid>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
             <TextBlock x:Name="RoleLabel"
@@ -16,7 +19,8 @@
                     Content="🐘 Animals"
                     Width="200" Height="40" Margin="0,5,0,5"
                     Click="Animals_Click"/>
-            
+
+            <!-- 🏠 Клітки -->
             <Button x:Name="CagesButton"
                     Content="🏠 Cages"
                     Width="200" Height="40" Margin="0,5,0,5"
@@ -27,7 +31,7 @@
                     Content="🍽 Feeding"
                     Width="200" Height="40" Margin="0,5,0,5"
                     Click="Feeding_Click"/>
-            
+
             <!-- 🛒 Постачальники -->
             <Button x:Name="SuppliersButton"
                     Content="🛒 Suppliers"
@@ -45,7 +49,8 @@
                     Content="🔄 Exchange"
                     Width="200" Height="40" Margin="0,5,0,5"
                     Click="Exchange_Click"/>
-            
+
+            <!-- 📜 Логи -->
             <Button x:Name="LogsButton"
                     Content="📜 Logs"
                     Width="200"
@@ -58,6 +63,14 @@
                     Content="👨‍💼 Employees"
                     Width="200" Height="40" Margin="0,5,0,5"
                     Click="Employees_Click"/>
+
+            <!-- 🖥 SQL Console -->
+            <Button x:Name="SqlConsoleButton"
+                    Content="🖥 SQL Console"
+                    Width="200"
+                    Height="40"
+                    Margin="0,5,0,5"
+                    Click="SqlConsole_Click"/>
 
             <!-- ➕ Додавання користувача -->
             <Button x:Name="AddUserButton"

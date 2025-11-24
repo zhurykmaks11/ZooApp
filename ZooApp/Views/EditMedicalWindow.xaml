@@ -1,0 +1,90 @@
+﻿<Window x:Class="ZooApp.Views.EditMedicalWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Edit Medical Checkup"
+        Height="540"
+        Width="500"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <TextBlock Text="Edit Medical Checkup"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,15"/>
+
+            <!-- Дата -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="Date:" Width="100" VerticalAlignment="Center"/>
+                <DatePicker x:Name="DatePicker" Width="250"/>
+            </StackPanel>
+
+            <!-- Вага -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="Weight (kg):" Width="100" VerticalAlignment="Center"/>
+                <TextBox x:Name="WeightBox" Width="250" Height="28"/>
+            </StackPanel>
+
+            <!-- Ріст -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="Height (m):" Width="100" VerticalAlignment="Center"/>
+                <TextBox x:Name="HeightBox" Width="250" Height="28"/>
+            </StackPanel>
+
+            <!-- Вакцинації -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="Vaccinations:" Width="100" VerticalAlignment="Top" Margin="0,3,0,0"/>
+                <TextBox x:Name="VaccinationsBox"
+                         Width="250"
+                         Height="60"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"/>
+            </StackPanel>
+
+            <!-- Хвороби -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="Illnesses:" Width="100" VerticalAlignment="Top" Margin="0,3,0,0"/>
+                <TextBox x:Name="IllnessesBox"
+                         Width="250"
+                         Height="60"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"/>
+            </StackPanel>
+
+            <!-- Лікування -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="Treatment:" Width="100" VerticalAlignment="Top" Margin="0,3,0,0"/>
+                <TextBox x:Name="TreatmentBox"
+                         Width="250"
+                         Height="60"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"/>
+            </StackPanel>
+
+        </StackPanel>
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="0,15,0,0">
+            <Button Content="💾 Save"
+                    Width="100"
+                    Height="32"
+                    Margin="5"
+                    Click="Save_Click"/>
+            <Button Content="❌ Cancel"
+                    Width="100"
+                    Height="32"
+                    Margin="5"
+                    Click="Cancel_Click"/>
+        </StackPanel>
+
+    </Grid>
+</Window>

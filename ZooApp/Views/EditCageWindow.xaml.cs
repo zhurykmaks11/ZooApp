@@ -9,15 +9,23 @@ namespace ZooApp.Views
     public partial class EditCageWindow : Window
     {
         private readonly CagesService _service;
+        private readonly LogService _log;
         private readonly string _id;
+        private readonly string _username;
 
         private readonly Regex sizeRegex =
             new Regex(@"^\s*\d{1,3}\s*[xX]\s*\d{1,3}\s*$");
 
-        public EditCageWindow(string cageId)
+        public EditCageWindow(string cageId, string username)
         {
             InitializeComponent();
-            _service = new CagesService(new MongoDbContext("mongodb://localhost:27017", "test"));
+
+            _username = username;
+
+            var context = new MongoDbContext("mongodb://localhost:27017", "test");
+            _service = new CagesService(context);
+            _log = new LogService(context);
+
             _id = cageId;
 
             var cage = _service.GetCage(cageId);
@@ -29,7 +37,6 @@ namespace ZooApp.Views
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            // VALIDATE SIZE
             if (!sizeRegex.IsMatch(SizeBox.Text))
             {
                 MessageBox.Show("❌ Size must be in format NNxNN (example: 50x30)", "Error");
@@ -51,6 +58,9 @@ namespace ZooApp.Views
                     .Select(s => s.Trim().ToLower())
                     .ToList()
             );
+
+            _log.Write(_username, "Edit Cage",
+                $"Location={LocationBox.Text.Trim()}, Size={SizeBox.Text.Trim()}, Capacity={capacity}");
 
             MessageBox.Show("✅ Cage updated!");
             DialogResult = true;

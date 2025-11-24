@@ -3,30 +3,40 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using ZooApp.Models;
-using System.Windows.Input;
 using MongoDB.Driver;
 using ZooApp.Data;
+using ZooApp.Models;
+using ZooApp.Services;
 
 namespace ZooApp.Views
 {
     public partial class AddFeedingWindow : Window
     {
+        private readonly LogService _log;
+        private readonly MongoDbContext _context;
+        private readonly string _username;
+
         public FeedingSchedule Feeding { get; private set; }
 
-        public AddFeedingWindow()
+        public AddFeedingWindow(string username)
         {
             InitializeComponent();
+
+            _username = username;
+
+            _context = new MongoDbContext("mongodb://localhost:27017", "test");
+            _log = new LogService(_context);
+
             LoadAnimals();
 
             FeedingTimeBox.Text = DateTime.Now.ToString("HH:mm");
         }
+
         private void LoadAnimals()
         {
             try
             {
-                var context = new MongoDbContext("mongodb://localhost:27017", "test");
-                var animals = context.Animals.Find(_ => true).ToList();
+                var animals = _context.Animals.Find(_ => true).ToList();
                 AnimalComboBox.ItemsSource = animals;
                 AnimalComboBox.DisplayMemberPath = "DisplayName";
                 AnimalComboBox.SelectedValuePath = "Id";
@@ -36,7 +46,7 @@ namespace ZooApp.Views
                 MessageBox.Show($"Error loading animals: {ex.Message}");
             }
         }
-        
+
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             if (AnimalComboBox.SelectedItem == null)
@@ -63,7 +73,7 @@ namespace ZooApp.Views
             if (!TimeSpan.TryParse(FeedingTimeBox.Text, out _))
             {
                 FeedingTimeBox.BorderBrush = Brushes.Red;
-                MessageBox.Show("Feeding time must be in format HH:mm (e.g. 10:30).");
+                MessageBox.Show("Feeding time must be in HH:mm format.");
                 return;
             }
 
@@ -87,6 +97,8 @@ namespace ZooApp.Views
                 Season = season
             };
 
+            
+
             DialogResult = true;
             Close();
         }
@@ -101,6 +113,7 @@ namespace ZooApp.Views
         {
             e.Handled = !double.TryParse(e.Text, out _);
         }
+
         private void AnimalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (AnimalComboBox.SelectedItem is Animal animal)
@@ -117,6 +130,5 @@ namespace ZooApp.Views
             if (e.Command == ApplicationCommands.Paste)
                 e.Handled = true;
         }
-
     }
 }

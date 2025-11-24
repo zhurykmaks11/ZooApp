@@ -1,0 +1,50 @@
+﻿<Window x:Class="ZooApp.Views.SqlConsoleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SQL Console (read-only)"
+        Height="650"
+        Width="1000"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid Margin="10">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Верхня панель -->
+        <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+            <TextBox x:Name="SqlBox"
+                     Width="700"
+                     Height="40"
+                     FontSize="16"
+                     VerticalContentAlignment="Center"
+                     AcceptsReturn="True"
+                     Text="SELECT * FROM Animals" />
+
+            <Button Content="▶ Execute"
+                    Width="150"
+                    Height="40"
+                    Margin="10 0"
+                    Click="Execute_Click"/>
+
+            <Button Content="⬅ Back"
+                    Width="120"
+                    Height="40"
+                    Margin="10 0"
+                    Click="Back_Click"/>
+        </StackPanel>
+
+        <!-- Результат -->
+        <DataGrid x:Name="ResultGrid"
+                  Grid.Row="1"
+                  AutoGenerateColumns="True"
+                  CanUserAddRows="False"
+                  IsReadOnly="True"
+                  AlternatingRowBackground="LightGray"
+                  GridLinesVisibility="All"
+                  RowHeight="28"
+                  FontSize="14" />
+    </Grid>
+</Window>

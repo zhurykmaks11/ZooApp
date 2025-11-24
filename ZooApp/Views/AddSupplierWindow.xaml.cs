@@ -16,8 +16,9 @@ namespace ZooApp.Views
             Supplier = new Supplier();
         }
 
-        public AddSupplierWindow(Supplier supplier) : this()
+        public AddSupplierWindow(Supplier supplier)
         {
+            InitializeComponent();
             Supplier = supplier;
 
             NameBox.Text = supplier.Name;
@@ -42,7 +43,7 @@ namespace ZooApp.Views
 
             if (!Regex.IsMatch(PhoneBox.Text, @"^\+380\d{9}$"))
             {
-                MessageBox.Show("Phone must be in +380XXXXXXXXX format");
+                MessageBox.Show("Phone must be in format +380XXXXXXXXX");
                 return;
             }
 
@@ -63,7 +64,6 @@ namespace ZooApp.Views
             DialogResult = true;
             Close();
         }
-
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {

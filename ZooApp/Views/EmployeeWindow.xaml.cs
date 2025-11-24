@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using ZooApp.Services;
 using ZooApp.Models;
@@ -12,26 +11,27 @@ namespace ZooApp.Views
         private readonly string _role;
         private readonly EmployeeService _employeeService;
         private readonly string _username;
-        
-        public EmployeeWindow(string role)
+        private readonly LogService _log;
+
+        public EmployeeWindow(string role, string username)
         {
             InitializeComponent();
             _role = role;
+            _username = username;
 
             var context = new Data.MongoDbContext("mongodb://localhost:27017", "test");
             _employeeService = new EmployeeService(context);
+            _log = new LogService(context);
 
             LoadEmployees();
             ApplyAccessRules();
         }
 
-        // 🔒 Обмеження доступу за ролями
         private void ApplyAccessRules()
         {
             switch (_role.ToLower())
             {
                 case "admin":
-                    // повний доступ
                     break;
 
                 case "operator":
@@ -39,6 +39,7 @@ namespace ZooApp.Views
                     DeleteButton.IsEnabled = false;
                     break;
 
+                case "authorized":
                 case "guest":
                     AddButton.IsEnabled = false;
                     EditButton.IsEnabled = false;
@@ -47,28 +48,26 @@ namespace ZooApp.Views
             }
         }
 
-        // 📋 Завантаження таблиці
         private void LoadEmployees()
         {
             EmployeeGrid.ItemsSource = _employeeService.GetAllEmployees();
         }
 
-        // ➕ Додати
         private void Add_Click(object sender, RoutedEventArgs e)
         {
             var addWindow = new AddEmployeeWindow();
             if (addWindow.ShowDialog() == true)
             {
                 LoadEmployees();
+                _log.Write(_username, "Add Employee", "New employee created");
             }
         }
 
-        // ✏️ Редагувати
         private void Edit_Click(object sender, RoutedEventArgs e)
         {
             if (EmployeeGrid.SelectedItem is not Employee selected)
             {
-                MessageBox.Show("Select an employee to edit.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Select an employee to edit.");
                 return;
             }
 
@@ -76,33 +75,27 @@ namespace ZooApp.Views
             if (editWindow.ShowDialog() == true)
             {
                 LoadEmployees();
+                _log.Write(_username, "Edit Employee", $"Updated EmployeeId={selected.Id}");
             }
         }
 
-        // ❌ Видалити
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
             if (EmployeeGrid.SelectedItem is not Employee selected)
             {
-                MessageBox.Show("Select an employee to delete.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Select an employee to delete.");
                 return;
             }
 
-            if (MessageBox.Show($"Delete {selected.FullName}?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            if (MessageBox.Show($"Delete {selected.FullName}?",
+                    "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 _employeeService.DeleteEmployee(selected.Id);
                 LoadEmployees();
+                _log.Write(_username, "Delete Employee", $"EmployeeId={selected.Id}");
             }
         }
 
-        // ⬅ Назад
-        private void Back_Click(object sender, RoutedEventArgs e)
-        {
-            new MainWindow(_role, _username).Show();
-            this.Close();
-        }
-
-        // 🔍 Фільтр
         private void Find_Click(object sender, RoutedEventArgs e)
         {
             string query = SearchBox.Text.Trim().ToLower();
@@ -123,7 +116,6 @@ namespace ZooApp.Views
             EmployeeGrid.ItemsSource = employees;
         }
 
-        // 🧠 Placeholder логіка
         private void SearchBox_GotFocus(object sender, RoutedEventArgs e)
         {
             if (SearchBox.Text == "Search by name...")
@@ -141,12 +133,11 @@ namespace ZooApp.Views
                 SearchBox.Foreground = System.Windows.Media.Brushes.Gray;
             }
         }
-        private void Employee_Click(object sender, RoutedEventArgs e)
-        {
-            var empWindow = new EmployeeWindow(_role);
-            empWindow.Show();
-            this.Close();
-        }
 
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            new MainWindow(_role, _username).Show();
+            Close();
+        }
     }
 }

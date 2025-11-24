@@ -85,6 +85,32 @@ namespace ZooApp.Services
                 .Find(r => animalIds.Contains(r.AnimalId))
                 .ToList();
         }
+        
+        public void UpdateLatestCheckup(string recordId, Checkup updated)
+        {
+            if (!ObjectId.TryParse(recordId, out var objectId))
+                return;
+
+            // 1️⃣ шукаємо медичний запис
+            var record = _medicalCollection.Find(r => r.Id == objectId).FirstOrDefault();
+            if (record == null) return;
+
+            // 2️⃣ беремо останній checkup
+            var last = record.Checkups.OrderByDescending(c => c.Date).FirstOrDefault();
+            if (last == null) return;
+
+            // 3️⃣ змінюємо його
+            last.Date = updated.Date;
+            last.Weight = updated.Weight;
+            last.Height = updated.Height;
+            last.Vaccinations = updated.Vaccinations;
+            last.Illnesses = updated.Illnesses;
+            last.Treatment = updated.Treatment;
+
+            // 4️⃣ оновлюємо весь запис в базі
+            _medicalCollection.ReplaceOne(r => r.Id == objectId, record);
+        }
+
 
         // ✅ Пошук за хворобою або щепленням
         public List<MedicalRecord> SearchByDiseaseOrVaccine(string keyword)

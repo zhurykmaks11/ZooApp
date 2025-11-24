@@ -14,17 +14,48 @@
 
         <!-- Кнопки -->
         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-            <Button Content="➕ Add Cage" Width="120" Margin="5" Click="AddCage_Click"/>
-            <Button Content="🐾 Assign Animal" Width="140" Margin="5" Click="AssignAnimal_Click"/>
-            <Button Content="🔄 Move Animal" Width="120" Margin="5" Click="MoveAnimal_Click"/>
-            <Button Content="👁 View Animals" Width="130" Margin="5" Click="ViewAnimals_Click"/>
-            <Button Content="✏️ Edit Cage" Width="120" Margin="5" Click="EditCage_Click"/>
-            <Button Content="🗑 Delete Cage" Width="120" Margin="5" Click="DeleteCage_Click"/>
+            <Button x:Name="AddCageButton"
+                    Content="➕ Add Cage"
+                    Width="120"
+                    Margin="5"
+                    Click="AddCage_Click"/>
 
-            <Button Content="⬅ Back" Width="100" Margin="5" Click="Back_Click"/>
-            
+            <Button x:Name="AssignAnimalButton"
+                    Content="🐾 Assign Animal"
+                    Width="140"
+                    Margin="5"
+                    Click="AssignAnimal_Click"/>
+
+            <Button x:Name="MoveAnimalButton"
+                    Content="🔄 Move Animal"
+                    Width="120"
+                    Margin="5"
+                    Click="MoveAnimal_Click"/>
+
+            <Button x:Name="ViewAnimalsButton"
+                    Content="👁 View Animals"
+                    Width="130"
+                    Margin="5"
+                    Click="ViewAnimals_Click"/>
+
+            <Button x:Name="EditCageButton"
+                    Content="✏️ Edit Cage"
+                    Width="120"
+                    Margin="5"
+                    Click="EditCage_Click"/>
+
+            <Button x:Name="DeleteCageButton"
+                    Content="🗑 Delete Cage"
+                    Width="120"
+                    Margin="5"
+                    Click="DeleteCage_Click"/>
+
+            <Button x:Name="BackButton"
+                    Content="⬅ Back"
+                    Width="100"
+                    Margin="5"
+                    Click="Back_Click"/>
         </StackPanel>
-
 
         <!-- Таблиця кліток -->
         <DataGrid x:Name="CagesGrid"

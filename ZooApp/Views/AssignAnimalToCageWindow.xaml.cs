@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using MongoDB.Driver;
 using ZooApp.Data;
 using ZooApp.Models;
@@ -11,14 +10,19 @@ namespace ZooApp.Views
     {
         private readonly CagesService _cagesService;
         private readonly IMongoCollection<Animal> _animals;
+        private readonly LogService _log;
+        private readonly string _username;
 
-        public AssignAnimalToCageWindow()
+        public AssignAnimalToCageWindow(string username)
         {
             InitializeComponent();
+
+            _username = username;
 
             var context = new MongoDbContext("mongodb://localhost:27017", "test");
             _cagesService = new CagesService(context);
             _animals = context.Animals;
+            _log = new LogService(context);
 
             LoadData();
         }
@@ -55,10 +59,17 @@ namespace ZooApp.Views
                 return;
             }
 
+            var animal = AnimalBox.SelectedItem as Animal;
+            var cage = CageBox.SelectedItem;
+
+            string cageLocation = cage?.GetType().GetProperty("Location")?.GetValue(cage)?.ToString() ?? "?";
+
+            _log.Write(_username, "Assign Animal",
+                $"Animal={animal?.Name}, Cage={cageLocation}");
+
             MessageBox.Show("✅ Animal assigned!");
             DialogResult = true;
             Close();
-
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)

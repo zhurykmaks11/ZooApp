@@ -8,58 +8,43 @@ namespace ZooApp.Views
     public partial class CageWindow : Window
     {
         private readonly CagesService _cagesService;
+        private readonly LogService _log;
         private readonly string _role;
         private readonly string _username;
-        
-        public CageWindow(string role)
+
+        public CageWindow(string role, string username)
         {
             InitializeComponent();
-            _role = role;
+
+            _role = role?.ToLower() ?? "guest";
+            _username = username;
+
             var context = new MongoDbContext("mongodb://localhost:27017", "test");
             _cagesService = new CagesService(context);
+            _log = new LogService(context);
 
             LoadCages();
-        }
-        private void EditCage_Click(object sender, RoutedEventArgs e)
-        {
-            if (CagesGrid.SelectedItem == null)
-            {
-                MessageBox.Show("Select a cage first.");
-                return;
-            }
-
-            dynamic row = CagesGrid.SelectedItem;
-            string cageId = row.Id.ToString();
-
-            var win = new EditCageWindow(cageId);
-            if (win.ShowDialog() == true)
-                LoadCages();
+            ApplyAccessRules();
         }
 
-        private void DeleteCage_Click(object sender, RoutedEventArgs e)
+        private void ApplyAccessRules()
         {
-            if (CagesGrid.SelectedItem == null)
+            switch (_role)
             {
-                MessageBox.Show("Select a cage first.");
-                return;
-            }
+                case "admin":
+                case "operator":
+                    // повний доступ до кліток
+                    break;
 
-            dynamic row = CagesGrid.SelectedItem;
-            string cageId = row.Id.ToString();
-
-            // Перевірка на тварин
-            var cage = _cagesService.GetCage(cageId);
-            if (cage.Animals.Count > 0)
-            {
-                MessageBox.Show("❌ Cannot delete cage — animals still inside!");
-                return;
-            }
-
-            if (MessageBox.Show("Delete cage?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-            {
-                _cagesService.DeleteCage(cageId);
-                MessageBox.Show("✅ Cage deleted.");
-                LoadCages();
+                case "authorized":
+                case "guest":
+                    AddCageButton.IsEnabled = false;
+                    EditCageButton.IsEnabled = false;
+                    DeleteCageButton.IsEnabled = false;
+                    AssignAnimalButton.IsEnabled = false;
+                    MoveAnimalButton.IsEnabled = false;
+                    // ViewAnimalsButton залишаємо, бо вони можуть дивитись
+                    break;
             }
         }
 
@@ -87,9 +72,61 @@ namespace ZooApp.Views
                 LoadCages();
         }
 
+        private void EditCage_Click(object sender, RoutedEventArgs e)
+        {
+            if (CagesGrid.SelectedItem == null)
+            {
+                MessageBox.Show("Select a cage first.");
+                return;
+            }
+
+            dynamic row = CagesGrid.SelectedItem;
+            string cageId = row.Id.ToString();
+
+            var win = new EditCageWindow(cageId, _username);
+            if (win.ShowDialog() == true)
+                LoadCages();
+        }
+
+        private void DeleteCage_Click(object sender, RoutedEventArgs e)
+        {
+            if (CagesGrid.SelectedItem == null)
+            {
+                MessageBox.Show("Select a cage first.");
+                return;
+            }
+
+            dynamic row = CagesGrid.SelectedItem;
+            string cageId = row.Id.ToString();
+
+            var cage = _cagesService.GetCage(cageId);
+            if (cage.Animals.Count > 0)
+            {
+                MessageBox.Show("❌ Cannot delete cage — animals still inside!");
+                return;
+            }
+
+            if (MessageBox.Show("Delete cage?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                _cagesService.DeleteCage(cageId);
+                _log.Write(_username, "Delete Cage",
+                    $"Location={cage.Location}, Size={cage.Size}, Capacity={cage.Capacity}");
+
+                MessageBox.Show("✅ Cage deleted.");
+                LoadCages();
+            }
+        }
+
+        private void AssignAnimal_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new AssignAnimalToCageWindow(_username);
+            if (win.ShowDialog() == true)
+                LoadCages();
+        }
+
         private void MoveAnimal_Click(object sender, RoutedEventArgs e)
         {
-            var win = new MoveAnimalWindow();
+            var win = new MoveAnimalWindow(_username);
             if (win.ShowDialog() == true)
                 LoadCages();
         }
@@ -108,14 +145,6 @@ namespace ZooApp.Views
             var win = new ViewCageAnimalsWindow(cageId);
             win.ShowDialog();
         }
-
-        private void AssignAnimal_Click(object sender, RoutedEventArgs e)
-        {
-            var win = new AssignAnimalToCageWindow();
-            if (win.ShowDialog() == true)
-                LoadCages();
-        }
-
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {

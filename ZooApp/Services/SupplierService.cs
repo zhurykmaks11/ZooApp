@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using System.Collections.Generic;
+using System.Linq;
 using ZooApp.Data;
 using ZooApp.Models;
 
@@ -14,31 +15,24 @@ namespace ZooApp.Services
             _suppliers = context.Suppliers;
         }
 
-        // Отримати всіх постачальників
-        public List<Supplier> GetAll()
-        {
-            return _suppliers.Find(_ => true).ToList();
-        }
+        public List<Supplier> GetAll() =>
+            _suppliers.Find(_ => true).ToList();
 
-        // Додати постачальника
-        public void Add(Supplier supplier)
-        {
+        public void Add(Supplier supplier) =>
             _suppliers.InsertOne(supplier);
-        }
 
-        // Оновити
         public void Update(Supplier supplier)
         {
-            _suppliers.ReplaceOne(s => s.Id == supplier.Id, supplier);
+            var filter = Builders<Supplier>.Filter.Eq(s => s.Id, supplier.Id);
+            _suppliers.ReplaceOne(filter, supplier);
         }
 
-        // Видалити
         public void Delete(string id)
         {
-            _suppliers.DeleteOne(s => s.Id == id);
+            var filter = Builders<Supplier>.Filter.Eq(s => s.Id, id);
+            _suppliers.DeleteOne(filter);
         }
 
-        // Пошук
         public List<Supplier> Search(string keyword)
         {
             keyword = keyword.ToLower();

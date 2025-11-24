@@ -15,15 +15,17 @@ namespace ZooApp.Views
         private readonly string _role;
         private readonly MedicalService _medicalService;
         private readonly string _username;
-        
-        public MedicalWindow(string role)
+        private readonly LogService _log;
+
+        public MedicalWindow(string role, string username)
         {
             InitializeComponent();
             _role = role;
+            _username = username;
 
             var context = new MongoDbContext("mongodb://localhost:27017", "test");
             _medicalService = new MedicalService(context);
-
+            _log = new LogService(context);
             LoadRecords();
             ApplyAccessRules();
         }
@@ -60,13 +62,27 @@ namespace ZooApp.Views
         // 🔒 Обмеження за роллю
         private void ApplyAccessRules()
         {
-            if (_role == "operator" || _role == "guest")
+            switch (_role.ToLower())
             {
-                AddRecordButton.IsEnabled = false;
-                AddCheckupButton.IsEnabled = false;
-                DeleteButton.IsEnabled = false;
+                case "admin":
+                    break;
+
+                case "operator":
+                    AddRecordButton.IsEnabled = false;
+                    AddCheckupButton.IsEnabled = false;
+                    DeleteButton.IsEnabled = false;
+                    break;
+
+                case "authorized":
+                case "guest":
+                    AddRecordButton.IsEnabled = false;
+                    AddCheckupButton.IsEnabled = false;
+                    DeleteButton.IsEnabled = false;
+                    EditCheckupButton.IsEnabled = false;
+                    break;
             }
         }
+
 
         // ➕ Новий запис (якщо тварини ще немає)
         private void AddRecord_Click(object sender, RoutedEventArgs e)
@@ -74,8 +90,12 @@ namespace ZooApp.Views
             var dialog = new AddMedicalWindow();
             if (dialog.ShowDialog() == true)
             {
+                
                 LoadRecords();
+                _log.Write(_username, "Add Medical Record", "Created new medical record");
             }
+            
+
         }
 
         // 💉 Додати Checkup у вже існуючий запис
@@ -93,6 +113,36 @@ namespace ZooApp.Views
             {
                 LoadRecords();
             }
+            _log.Write(_username, "Add Checkup", $"Checkup added to animal record");
+
+        }
+        private void EditCheckup_Click(object sender, RoutedEventArgs e)
+        {
+            int index = MedicalGrid.SelectedIndex;
+            if (index < 0)
+            {
+                MessageBox.Show("Select a record first.");
+                return;
+            }
+
+            var records = _medicalService.GetAllRecords();
+            var record = records.ElementAt(index);
+
+            var lastCheckup = record.Checkups.OrderByDescending(c => c.Date).FirstOrDefault();
+            if (lastCheckup == null)
+            {
+                MessageBox.Show("This record has no checkups to edit.");
+                return;
+            }
+
+            var dialog = new EditMedicalWindow(lastCheckup);
+            if (dialog.ShowDialog() == true)
+            {
+                _medicalService.UpdateLatestCheckup(record.Id.ToString(), dialog.UpdatedCheckup);
+                LoadRecords();
+            }
+            _log.Write(_username, "Edit Checkup", $"Updated checkup for record {record.Id}");
+
         }
 
         // ❌ Видалити
@@ -111,6 +161,8 @@ namespace ZooApp.Views
                 _medicalService.DeleteRecord(record.Id.ToString());
                 LoadRecords();
             }
+            _log.Write(_username, "Delete Medical Record", $"RecordId={record.Id}");
+
         }
 
         // 🔍 Пошук

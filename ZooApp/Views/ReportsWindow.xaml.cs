@@ -344,79 +344,88 @@ namespace ZooApp.Views
 
         #region Query 3: Employees responsible / with access
 
-        // 3) Працівники, які відповідають за вказаний вид / особину,
-        //    та ті, що мають доступ до кліток (ветеринар, прибиральник, дресирувальник).
-        private void RunQuery3_EmployeeAccess()
+
+private void RunQuery3_EmployeeAccess()
+{
+    string speciesFilter = Q3_SpeciesBox.Text.Trim().ToLower();
+    string animalId = Q3_AnimalCombo.SelectedValue?.ToString();
+
+    var animals = _allAnimals;
+    var employees = _allEmployees;
+
+    // Категорії, які мають доступ до тварин
+    var accessCategories = new[] { "vet", "cleaner", "trainer" };
+
+    // IDs тварин, яких шукаємо
+    var targetAnimalIds = new HashSet<string>();
+
+    // 🔍 Фільтр за видом
+    if (!string.IsNullOrWhiteSpace(speciesFilter))
+    {
+        foreach (var a in animals.Where(a =>
+                     !string.IsNullOrEmpty(a.Species) &&
+                     a.Species.ToLower().Contains(speciesFilter)))
         {
-            string speciesFilter = Q3_SpeciesBox.Text.Trim().ToLower();
-            string animalId = Q3_AnimalCombo.SelectedValue?.ToString();
-
-            var animals = _allAnimals;
-            var employees = _allEmployees;
-
-            var targetAnimalIds = new HashSet<string>();
-
-            if (!string.IsNullOrWhiteSpace(speciesFilter))
-            {
-                foreach (var a in animals.Where(a =>
-                             !string.IsNullOrEmpty(a.Species) &&
-                             a.Species.ToLower().Contains(speciesFilter)))
-                {
-                    targetAnimalIds.Add(a.Id);
-                }
-            }
-
-            if (!string.IsNullOrEmpty(animalId))
-            {
-                targetAnimalIds.Add(animalId);
-            }
-
-            var result = new List<object>();
-
-            if (targetAnimalIds.Count > 0)
-            {
-                // Працівники, у яких animalsUnderCare перетинається з targetAnimalIds
-                foreach (var e in employees)
-                {
-                    if (e.AnimalsUnderCare != null &&
-                        e.AnimalsUnderCare.Any(id => targetAnimalIds.Contains(id)))
-                    {
-                        result.Add(new
-                        {
-                            e.FullName,
-                            e.Category,
-                            e.Gender,
-                            WorkYears = GetYears(e.WorkStartDate),
-                            AnimalsUnderCare = e.AnimalsUnderCare.Count
-                        });
-                    }
-                }
-            }
-            else
-            {
-                // Якщо конкретний вид/особина не вказані –
-                // показати всіх, хто за замовчуванням має доступ до кліток.
-                var accessCategories = new[] { "ветеринар", "прибиральник", "дресирувальник" };
-
-                foreach (var e in employees.Where(e =>
-                             accessCategories.Contains(e.Category, StringComparer.OrdinalIgnoreCase)))
-                {
-                    result.Add(new
-                    {
-                        e.FullName,
-                        e.Category,
-                        e.Gender,
-                        WorkYears = GetYears(e.WorkStartDate),
-                        AnimalsUnderCare = e.AnimalsUnderCare?.Count ?? 0
-                    });
-                }
-            }
-
-            ReportsGrid.ItemsSource = result;
-            SummaryText.Text = $"Кількість працівників у вибірці: {result.Count}";
+            targetAnimalIds.Add(a.Id);
         }
+    }
 
-        #endregion
+    // 🔍 Фільтр за конкретною твариною
+    if (!string.IsNullOrEmpty(animalId))
+    {
+        targetAnimalIds.Add(animalId);
+    }
+
+    var result = new List<object>();
+
+    if (targetAnimalIds.Count > 0)
+    {
+        // 📌 Вибрані тварини → шукаємо працівників, які закріплені за ними
+        foreach (var emp in employees)
+        {
+            if (!accessCategories.Contains(emp.Category.ToLower()))
+                continue;
+
+            bool assigned =
+                emp.AnimalsUnderCare != null &&
+                emp.AnimalsUnderCare.Any(id => targetAnimalIds.Contains(id));
+
+            if (assigned)
+            {
+                result.Add(new
+                {
+                    emp.FullName,
+                    emp.Category,
+                    emp.Gender,
+                    WorkYears = GetYears(emp.WorkStartDate),
+                    AnimalsUnderCare = emp.AnimalsUnderCare?.Count ?? 0
+                });
+            }
+        }
+    }
+    else
+    {
+        // 📌 Нічого не вибрали → повертаємо всіх, хто має доступ до кліток
+        foreach (var emp in employees.Where(e =>
+                     accessCategories.Contains(e.Category.ToLower())))
+        {
+            result.Add(new
+            {
+                emp.FullName,
+                emp.Category,
+                emp.Gender,
+                WorkYears = GetYears(emp.WorkStartDate),
+                AnimalsUnderCare = emp.AnimalsUnderCare?.Count ?? 0
+            });
+        }
+    }
+
+    ReportsGrid.ItemsSource = result;
+    SummaryText.Text = $"Кількість працівників: {result.Count}";
+}
+
+#endregion
+
 
         #region Query 4: Suppliers
 

@@ -14,50 +14,62 @@ namespace ZooApp.Views
         public EditEmployeeWindow(Employee employee, EmployeeService service)
         {
             InitializeComponent();
-            _employeeService = service;
-            _employee = employee;
 
-            // Заповнюємо поля поточними даними
-            NameBox.Text = employee.FullName;
-            CategoryBox.Text = employee.Category;
-            GenderComboBox.SelectedItem = employee.Gender == "male"
-                ? GenderComboBox.Items[0]
-                : GenderComboBox.Items[1];
-            BirthDatePicker.SelectedDate = employee.BirthDate;
-            WorkStartDatePicker.SelectedDate = employee.WorkStartDate;
-            SalaryBox.Text = employee.Salary.ToString();
+            _employee = employee;
+            _employeeService = service;
+
+            LoadData();
+        }
+
+        private void LoadData()
+        {
+            NameBox.Text = _employee.FullName;
+
+            // CATEGORY
+            foreach (ComboBoxItem item in CategoryCombo.Items)
+            {
+                if (item.Content.ToString().ToLower() == _employee.Category.ToLower())
+                {
+                    CategoryCombo.SelectedItem = item;
+                    break;
+                }
+            }
+
+            // GENDER
+            foreach (ComboBoxItem item in GenderComboBox.Items)
+            {
+                if (item.Content.ToString().ToLower() == _employee.Gender.ToLower())
+                {
+                    GenderComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+
+            BirthDatePicker.SelectedDate = _employee.BirthDate;
+            WorkStartDatePicker.SelectedDate = _employee.WorkStartDate;
+            SalaryBox.Text = _employee.Salary.ToString();
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            // Перевірка валідації
-            if (string.IsNullOrWhiteSpace(NameBox.Text))
+            if (CategoryCombo.SelectedItem is not ComboBoxItem catItem ||
+                GenderComboBox.SelectedItem is not ComboBoxItem genderItem)
             {
-                MessageBox.Show("Name cannot be empty.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please fill all fields!", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(CategoryBox.Text))
+            if (!double.TryParse(SalaryBox.Text, out double salary) || salary <= 0)
             {
-                MessageBox.Show("Category cannot be empty.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Salary must be a positive number.", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            if (GenderComboBox.SelectedItem is not ComboBoxItem genderItem)
-            {
-                MessageBox.Show("Please select a gender.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (!double.TryParse(SalaryBox.Text, out var salary) || salary <= 0)
-            {
-                MessageBox.Show("Salary must be a positive number.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Оновлення даних
+            // UPDATE EMPLOYEE
             _employee.FullName = NameBox.Text.Trim();
-            _employee.Category = CategoryBox.Text.Trim();
+            _employee.Category = catItem.Content.ToString();
             _employee.Gender = genderItem.Content.ToString();
             _employee.BirthDate = BirthDatePicker.SelectedDate ?? DateTime.Now;
             _employee.WorkStartDate = WorkStartDatePicker.SelectedDate ?? DateTime.Now;
@@ -65,7 +77,9 @@ namespace ZooApp.Views
 
             _employeeService.UpdateEmployee(_employee);
 
-            MessageBox.Show("✅ Employee updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Employee updated successfully.",
+                "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
             DialogResult = true;
             Close();
         }

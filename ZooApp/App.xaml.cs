@@ -1,12 +1,20 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
+﻿using System.Windows;
+using ZooApp.Data;
+using ZooApp.Views;
 
 namespace ZooApp;
 
-/// <summary>
-/// Interaction logic for App.xaml
-/// </summary>
+
 public partial class App : Application
 {
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        base.OnStartup(e);
+
+        var ctx = new MongoDbContext("mongodb://localhost:27017", "test");
+        ZooDbSeeder.Seed(ctx);
+
+        new LoginWindow().Show();
+    }
+
 }

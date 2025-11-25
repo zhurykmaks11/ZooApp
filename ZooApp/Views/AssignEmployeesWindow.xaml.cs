@@ -33,11 +33,12 @@ namespace ZooApp.Views
         {
             _allEmployees = _employeeService.GetAllEmployees();
             
-            var allowed = new[] { "ветеринар", "прибиральник", "дресирувальник" };
+            var allowed = new[] { "vet", "cleaner", "trainer" };
 
-            _allEmployees = _allEmployees
+            _allEmployees = _employeeService.GetAllEmployees()
                 .Where(e => allowed.Contains(e.Category.ToLower()))
                 .ToList();
+
 
             _assignedEmployees = _allEmployees
                 .Where(e => e.AnimalsUnderCare.Contains(_animal.Id))

@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using ZooApp.Data;
 using ZooApp.Models;
 using ZooApp.Services;
+
 namespace ZooApp.Views
 {
     public partial class AddEmployeeWindow : Window
@@ -22,7 +23,7 @@ namespace ZooApp.Views
         {
             bool isValid = true;
 
-            // 🔴 Full Name
+            // FULL NAME
             if (string.IsNullOrWhiteSpace(NameBox.Text))
             {
                 NameBox.BorderBrush = System.Windows.Media.Brushes.Red;
@@ -35,20 +36,20 @@ namespace ZooApp.Views
                 NameError.Visibility = Visibility.Collapsed;
             }
 
-            // 🔴 Category
-            if (string.IsNullOrWhiteSpace(CategoryBox.Text))
+            // CATEGORY
+            if (CategoryCombo.SelectedItem == null)
             {
-                CategoryBox.BorderBrush = System.Windows.Media.Brushes.Red;
+                CategoryCombo.BorderBrush = System.Windows.Media.Brushes.Red;
                 CategoryError.Visibility = Visibility.Visible;
                 isValid = false;
             }
             else
             {
-                CategoryBox.ClearValue(Border.BorderBrushProperty);
+                CategoryCombo.ClearValue(Border.BorderBrushProperty);
                 CategoryError.Visibility = Visibility.Collapsed;
             }
 
-            // 🔴 Gender
+            // GENDER
             if (GenderComboBox.SelectedItem == null)
             {
                 GenderComboBox.BorderBrush = System.Windows.Media.Brushes.Red;
@@ -61,7 +62,7 @@ namespace ZooApp.Views
                 GenderError.Visibility = Visibility.Collapsed;
             }
 
-            // 🔴 Birth date
+            // BIRTH DATE
             if (BirthDatePicker.SelectedDate == null)
             {
                 BirthDatePicker.BorderBrush = System.Windows.Media.Brushes.Red;
@@ -74,7 +75,7 @@ namespace ZooApp.Views
                 BirthError.Visibility = Visibility.Collapsed;
             }
 
-            // 🔴 Work start date
+            // WORK START DATE
             if (WorkStartDatePicker.SelectedDate == null)
             {
                 WorkStartDatePicker.BorderBrush = System.Windows.Media.Brushes.Red;
@@ -87,7 +88,7 @@ namespace ZooApp.Views
                 WorkDateError.Visibility = Visibility.Collapsed;
             }
 
-            // 🔴 Salary
+            // SALARY
             if (!double.TryParse(SalaryBox.Text, out double salary) || salary <= 0)
             {
                 SalaryBox.BorderBrush = System.Windows.Media.Brushes.Red;
@@ -102,19 +103,21 @@ namespace ZooApp.Views
 
             if (!isValid) return;
 
-            // ✅ Якщо все валідно — зберігаємо
+            // CREATE EMPLOYEE
             var emp = new Employee
             {
                 FullName = NameBox.Text.Trim(),
-                Category = CategoryBox.Text.Trim(),
-                Gender = ((System.Windows.Controls.ComboBoxItem)GenderComboBox.SelectedItem).Content.ToString(),
+                Category = ((ComboBoxItem)CategoryCombo.SelectedItem).Content.ToString(),
+                Gender = ((ComboBoxItem)GenderComboBox.SelectedItem).Content.ToString(),
                 BirthDate = BirthDatePicker.SelectedDate.Value,
                 WorkStartDate = WorkStartDatePicker.SelectedDate.Value,
                 Salary = salary
             };
 
             _employeeService.AddEmployee(emp);
-            MessageBox.Show($"✅ Employee '{emp.FullName}' added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            MessageBox.Show($"✅ Employee '{emp.FullName}' added successfully.",
+                "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
             DialogResult = true;
             Close();

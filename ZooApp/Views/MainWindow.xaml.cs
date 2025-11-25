@@ -1,4 +1,6 @@
 ﻿using System.Windows;
+using MongoDB.Driver;
+using ZooApp.Data;
 
 namespace ZooApp.Views
 {
@@ -132,6 +134,28 @@ namespace ZooApp.Views
             this.Close();
         }
 
+        private void ResetDb_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Очистити та пересоздати базу?", 
+                    "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                return;
+
+            var ctx = new MongoDbContext("mongodb://localhost:27017", "test");
+
+            ctx.Animals.DeleteMany(_ => true);
+            ctx.Cages.DeleteMany(_ => true);
+            ctx.Employees.DeleteMany(_ => true);
+            ctx.Feeds.DeleteMany(_ => true);
+            ctx.Suppliers.DeleteMany(_ => true);
+            ctx.FeedingSchedules.DeleteMany(_ => true);
+            ctx.MedicalRecords.DeleteMany(_ => true);
+            ctx.ExchangeRecords.DeleteMany(_ => true);
+            ctx.Logs.DeleteMany(_ => true);
+
+            ZooDbSeeder.Seed(ctx);
+
+            MessageBox.Show("Базу пересотворено!");
+        }
 
         private void Employees_Click(object sender, RoutedEventArgs e)
         {

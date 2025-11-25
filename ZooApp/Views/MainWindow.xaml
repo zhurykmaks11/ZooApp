@@ -76,6 +76,11 @@
                     Width="200" Height="40" Margin="5"
                     Click="Reports_Click"/>
 
+            <Button Content="Reset DB"
+                    Width="200"
+                    Height="40"
+                    Margin="5"
+                    Click="ResetDb_Click"/>
 
             <!-- ➕ Додавання користувача -->
             <Button x:Name="AddUserButton"

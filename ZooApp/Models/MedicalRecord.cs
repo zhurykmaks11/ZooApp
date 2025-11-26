@@ -31,8 +31,7 @@ namespace ZooApp.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
-
-        // посилання на тварину (string, бо Animal.Id — string)
+        
         [BsonElement("animalId")]
         [BsonRepresentation(BsonType.ObjectId)]
         public string AnimalId { get; set; }

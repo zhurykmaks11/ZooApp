@@ -16,10 +16,10 @@
 
             <TextBlock Text="Season:" Margin="10,10,0,0"/>
             <ComboBox x:Name="SeasonBox" Margin="0,5">
-                <ComboBoxItem Content="зима"/>
-                <ComboBoxItem Content="весна"/>
-                <ComboBoxItem Content="літо"/>
-                <ComboBoxItem Content="осінь"/>
+                <ComboBoxItem Content="winter"/>
+                <ComboBoxItem Content="spring"/>
+                <ComboBoxItem Content="summary"/>
+                <ComboBoxItem Content="autumn"/>
             </ComboBox>
         </StackPanel>
 

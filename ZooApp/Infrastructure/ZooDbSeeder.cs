@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using ZooApp.Models;
+using BCrypt.Net;
 
 namespace ZooApp.Data
 {
@@ -11,7 +14,7 @@ namespace ZooApp.Data
     {
         public static void Seed(MongoDbContext db)
         {
-            // 🔄 Повне скидання основних колекцій (ЛОГИ НЕ ЧІПАЄМО)
+            // 🔄 Повне скидання основних колекцій, включаючи KeyUsers
             db.Animals.DeleteMany(Builders<Animal>.Filter.Empty);
             db.Cages.DeleteMany(Builders<Cage>.Filter.Empty);
             db.Employees.DeleteMany(Builders<Employee>.Filter.Empty);
@@ -20,6 +23,11 @@ namespace ZooApp.Data
             db.FeedingSchedules.DeleteMany(Builders<FeedingSchedule>.Filter.Empty);
             db.ExchangeRecords.DeleteMany(Builders<ExchangeRecord>.Filter.Empty);
             db.MedicalRecords.DeleteMany(Builders<MedicalRecord>.Filter.Empty);
+            
+            // ⭐ Додаємо очищення та створення KeyUsers
+            db.KeyUsers.DeleteMany(Builders<KeyUser>.Filter.Empty);
+            var keyUsers = GetKeyUsers();
+            db.KeyUsers.InsertMany(keyUsers);
 
             // ───────────────────────────── animals / cages / employees ─────────────────────────────
             var animals = GetAnimals();
@@ -48,11 +56,53 @@ namespace ZooApp.Data
             var exchanges = GetExchanges(animals);
             db.ExchangeRecords.InsertMany(exchanges);
             
+            // ⭐ Пост-ініціалізація зв'язків
             AssignAnimalsToCages(db);
             AssignEmployeesToAnimals(db);
         }
+        public static string HashPassword(string password)
+        {
+            using (var sha = SHA256.Create())
+            {
+                var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
+        // ⭐ НОВИЙ МЕТОД: Генерація початкових користувачів
+        private static List<KeyUser> GetKeyUsers()
+        {
+            return new List<KeyUser>
+            {
+                new KeyUser
+                {
+                    Login = "admin",
+                    Password = HashPassword("1234"), // ⭐ ВИКОРИСТОВУЄМО МЕТОД SHA256
+                    Role = "admin"
+                },
+                new KeyUser
+                {
+                    Login = "operator",
+                    Password = HashPassword("1234"), // ⭐ ВИКОРИСТОВУЄМО МЕТОД SHA256
+                    Role = "operator"
+                },
+                new KeyUser
+                {
+                    Login = "authorized", 
+                    Password = HashPassword("1234"), // ⭐ ВИКОРИСТОВУЄМО МЕТОД SHA256
+                    Role = "authorized"
+                },
+                new KeyUser
+                {
+                    Login = "guest",
+                    Password = HashPassword("1234"), // ⭐ ВИКОРИСТОВУЄМО МЕТОД SHA256
+                    Role = "guest"
+                }
+            };
+        }
 
-        
+        // ───────────────────────────────────────
+        // ТВАРИНИ
+        // ───────────────────────────────────────
         private static List<Animal> GetAnimals()
         {
             var rnd = new Random();
@@ -101,7 +151,9 @@ namespace ZooApp.Data
             return animals;
         }
 
-        
+        // ───────────────────────────────────────
+        // КЛІТКИ
+        // ───────────────────────────────────────
         private static List<Cage> GetCages() => new()
         {
             new Cage

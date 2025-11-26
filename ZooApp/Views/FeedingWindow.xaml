@@ -1,7 +1,7 @@
 ﻿<Window x:Class="ZooApp.Views.FeedingWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Feeding Schedule" Height="500" Width="1200"
+        Title="Feeding Schedule" Height="500" Width="1250"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>

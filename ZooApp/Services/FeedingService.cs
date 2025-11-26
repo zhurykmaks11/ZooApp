@@ -19,7 +19,7 @@ namespace ZooApp.Services
             _feedsCollection = context.Feeds;
         }
 
-        // ✅ 1. Отримати всі записи про годування
+      
         public List<FeedingSchedule> GetAllFeedings()
         {
             return _feedingCollection.Find(_ => true).ToList();
@@ -41,26 +41,26 @@ namespace ZooApp.Services
             }
             catch (Exception ex)
             {
-                // Тут відловлюємо будь-яку помилку
+                
                 throw new Exception($"Error adding feeding record: {ex.Message}");
             }
         }
 
 
 
-        // ✅ 3. Редагувати запис
+       
         public void UpdateFeeding(FeedingSchedule updated)
         {
             _feedingCollection.ReplaceOne(f => f.Id == updated.Id, updated);
         }
 
-        // ✅ 4. Видалити запис
+        
         public void DeleteFeeding(string id)
         {
             _feedingCollection.DeleteOne(f => f.Id == id);
         }
 
-        // ✅ 5. Пошук годувань за твариною або типом корму
+       
         public List<FeedingSchedule> SearchFeedings(string keyword)
         {
             keyword = keyword.ToLower();
@@ -87,7 +87,7 @@ namespace ZooApp.Services
         }
 
 
-        // ✅ 7. Отримати загальну кількість корму за сезоном
+   
         public double GetTotalFeedBySeason(string season)
         {
             var feedings = _feedingCollection.AsQueryable()
@@ -96,7 +96,7 @@ namespace ZooApp.Services
             return feedings.Sum(f => (double)f.QuantityKg);
         }
 
-        // ✅ 8. Отримати статистику годувань по типах кормів
+       
         public Dictionary<string, double> GetFeedTypeStatistics()
         {
             var feedings = _feedingCollection.AsQueryable();
@@ -106,7 +106,7 @@ namespace ZooApp.Services
                 .ToDictionary(g => g.Key, g => g.Sum(f => (double)f.QuantityKg));
         }
 
-        // ✅ 9. Отримати повний список тварин із інформацією про їхній корм
+        
         public List<FeedInfo> GetAnimalFeedInfo()
         {
             return _feedingCollection.AsQueryable()
@@ -120,7 +120,7 @@ namespace ZooApp.Services
         }
 
 
-        // ✅ 10. Отримати всі унікальні сезони годування
+       
         public List<string> GetAllSeasons()
         {
             return _feedingCollection.AsQueryable()

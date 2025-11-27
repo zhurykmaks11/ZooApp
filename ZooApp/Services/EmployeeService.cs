@@ -32,8 +32,7 @@ namespace ZooApp.Services
             var filter = Builders<Employee>.Filter.Eq(e => e.Id, id);
             _employees.DeleteOne(filter);
         }
-
-        // 🔍 Пошук за категорією або ім'ям
+        
         public List<Employee> SearchEmployees(string query)
         {
             query = query.ToLower();

@@ -14,57 +14,50 @@
                        Margin="0,0,0,20"
                        FontWeight="Bold"/>
 
-            <!-- 🐘 Тварини -->
+           
             <Button x:Name="AnimalsButton"
                     Content="🐘 Animals"
                     Width="200" Height="40" Margin="0,5,0,5"
                     Click="Animals_Click"/>
 
-            <!-- 🏠 Клітки -->
+            
             <Button x:Name="CagesButton"
                     Content="🏠 Cages"
                     Width="200" Height="40" Margin="0,5,0,5"
                     Click="Cages_Click"/>
-
-            <!-- 🍽 Годування -->
+            
             <Button x:Name="FeedingButton"
                     Content="🍽 Feeding"
                     Width="200" Height="40" Margin="0,5,0,5"
                     Click="Feeding_Click"/>
-
-            <!-- 🛒 Постачальники -->
+            
             <Button x:Name="SuppliersButton"
                     Content="🛒 Suppliers"
                     Width="200" Height="40" Margin="0,5,0,5"
                     Click="Suppliers_Click"/>
-
-            <!-- 🩺 Медичні записи -->
+            
             <Button x:Name="MedicalButton"
                     Content="🩺 Medical"
                     Width="200" Height="40" Margin="0,5,0,5"
                     Click="Medical_Click"/>
-
-            <!-- 🔄 Обміни -->
+            
             <Button x:Name="ExchangeButton"
                     Content="🔄 Exchange"
                     Width="200" Height="40" Margin="0,5,0,5"
                     Click="Exchange_Click"/>
-
-            <!-- 📜 Логи -->
+            
             <Button x:Name="LogsButton"
                     Content="📜 Logs"
                     Width="200"
                     Height="40"
                     Margin="0,5,0,5"
                     Click="Logs_Click"/>
-
-            <!-- 👨‍💼 Працівники -->
+            
             <Button x:Name="EmployeesButton"
                     Content="👨‍💼 Employees"
                     Width="200" Height="40" Margin="0,5,0,5"
                     Click="Employees_Click"/>
-
-            <!-- 🖥 SQL Console -->
+            
             <Button x:Name="SqlConsoleButton"
                     Content="🖥 SQL Console"
                     Width="200"
@@ -81,15 +74,13 @@
                     Height="40"
                     Margin="5"
                     Click="ResetDb_Click"/>
-
-            <!-- ➕ Додавання користувача -->
+            
             <Button x:Name="AddUserButton"
                     Content="➕ Add User"
                     Width="200" Height="40" Margin="0,10,0,0"
                     Background="LightSkyBlue"
                     Click="AddUser_Click"/>
-
-            <!-- 🚪 Вихід -->
+            
             <Button x:Name="LogoutButton"
                     Content="🚪 Logout"
                     Width="200" Height="40" Margin="0,20,0,0"

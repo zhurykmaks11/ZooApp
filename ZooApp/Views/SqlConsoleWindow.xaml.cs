@@ -24,8 +24,7 @@ namespace ZooApp.Views
 
             _role = role.ToLower();
             _username = username;
-
-            // доступ до консолі: тільки admin та operator
+            
             if (_role != "admin" && _role != "operator")
             {
                 MessageBox.Show("❌ Only admin or operator can use SQL Console!",
@@ -47,8 +46,7 @@ namespace ZooApp.Views
                 MessageBox.Show("Enter SQL query.");
                 return;
             }
-
-            // 🚫 Заборона небезпечних команд
+            
             string[] forbidden = { "delete", "drop", "truncate", "insert", "update", "remove", "replace" };
             if (forbidden.Any(f => sql.ToLower().Contains(f)))
             {
@@ -69,8 +67,7 @@ namespace ZooApp.Views
             try
             {
                 var result = ExecuteSelect(sql);
-
-                // трошки форс-релоад
+                
                 ResultGrid.ItemsSource = null;
                 ResultGrid.ItemsSource = result as IList;
 
@@ -89,7 +86,6 @@ namespace ZooApp.Views
 
         private IList ExecuteSelect(string sql)
         {
-            // ------------ Визначаємо таблицю -------------
             var tableMatch = Regex.Match(sql, @"from\s+(\w+)", RegexOptions.IgnoreCase);
             if (!tableMatch.Success)
                 throw new Exception("Table not found in query (missing FROM).");
@@ -106,8 +102,7 @@ namespace ZooApp.Views
                 "exchange"  => _context.ExchangeRecords.Find(_ => true).ToList(),
                 _ => throw new Exception("Unknown table: " + table)
             };
-
-            // ------------ WHERE -------------
+            
             if (sql.ToLower().Contains("where"))
             {
                 var whereMatch = Regex.Match(sql, @"where\s+(.+)", RegexOptions.IgnoreCase);
@@ -133,12 +128,9 @@ namespace ZooApp.Views
                             })
                             .ToList();
                     }
-                    // якщо WHERE є, але не розпізнано – просто ігноруємо,
-                    // або можна кинути помилку
                 }
             }
-
-            // ------------ SELECT column1, column2 -------------
+            
             var colMatch = Regex.Match(sql, @"select\s+(.+?)\s+from", RegexOptions.IgnoreCase);
             if (colMatch.Success)
             {

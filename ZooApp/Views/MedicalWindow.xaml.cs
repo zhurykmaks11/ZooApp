@@ -36,7 +36,7 @@ namespace ZooApp.Views
             ApplyAccessRules();
         }
 
-        // 🧩 Завантаження таблиці
+       
         private void LoadRecords()
         {
             var animals = _animalsCollection.Find(_ => true).ToList();
@@ -65,8 +65,7 @@ namespace ZooApp.Views
 
             MedicalGrid.ItemsSource = data;
         }
-
-        // 🔒 Обмеження за роллю
+        
         private void ApplyAccessRules()
         {
             switch (_role)
@@ -79,7 +78,6 @@ namespace ZooApp.Views
                     AddRecordButton.IsEnabled = false;
                     AddCheckupButton.IsEnabled = false;
                     DeleteButton.IsEnabled = false;
-                    // редагувати останній чекап теж логічно заборонити
                     EditCheckupButton.IsEnabled = false;
                     break;
 
@@ -92,11 +90,10 @@ namespace ZooApp.Views
                     break;
             }
         }
-
-        // ➕ Новий запис (або перший чекап)
+        
         private void AddRecord_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new AddMedicalWindow(); // вибір тварини всередині
+            var dialog = new AddMedicalWindow(); 
             if (dialog.ShowDialog() == true)
             {
                 LoadRecords();
@@ -118,8 +115,7 @@ namespace ZooApp.Views
             var win = new MedicalHistoryWindow(record.Id.ToString());
             win.ShowDialog();
         }
-
-        // 💉 Додати Checkup до вже існуючої картки
+        
         private void AddCheckup_Click(object sender, RoutedEventArgs e)
         {
             int index = MedicalGrid.SelectedIndex;
@@ -140,15 +136,14 @@ namespace ZooApp.Views
                 return;
             }
 
-            var dialog = new AddMedicalWindow(animal); // зафіксована тварина
+            var dialog = new AddMedicalWindow(animal); 
             if (dialog.ShowDialog() == true)
             {
                 LoadRecords();
                 _log.Write(_username, "Add Checkup", $"Checkup added to animal {animal.Name}");
             }
         }
-
-        // ✏️ Редагувати останній checkup
+        
         private void EditCheckup_Click(object sender, RoutedEventArgs e)
         {
             int index = MedicalGrid.SelectedIndex;
@@ -180,8 +175,7 @@ namespace ZooApp.Views
                 _log.Write(_username, "Edit Checkup", $"Updated checkup for record {record.Id}");
             }
         }
-
-        // ❌ Видалити картку
+        
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
             int index = MedicalGrid.SelectedIndex;
@@ -203,8 +197,7 @@ namespace ZooApp.Views
 
             _log.Write(_username, "Delete Medical Record", $"RecordId={record.Id}");
         }
-
-        // 🔍 Пошук
+        
         private void Find_Click(object sender, RoutedEventArgs e)
         {
             string query = SearchBox.Text.Trim().ToLower();
@@ -233,8 +226,7 @@ namespace ZooApp.Views
 
             MedicalGrid.ItemsSource = view;
         }
-
-        // 📊 Статистика
+        
         private void Stats_Click(object sender, RoutedEventArgs e)
         {
             var stats = _medicalService.GetVaccinationStatistics();
@@ -257,7 +249,7 @@ namespace ZooApp.Views
             Close();
         }
 
-        // 🧠 Placeholder логіка
+        
         private void SearchBox_GotFocus(object sender, RoutedEventArgs e)
         {
             if (SearchBox.Text == "Search...")

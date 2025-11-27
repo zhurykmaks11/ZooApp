@@ -22,13 +22,13 @@
 
             <StackPanel Grid.Row="1" VerticalAlignment="Top">
 
-                <!-- Full Name -->
+               
                 <TextBlock Text="Full Name:"/>
                 <TextBox x:Name="NameBox" Height="28"/>
                 <TextBlock x:Name="NameError" Foreground="Red" FontSize="12"
                            Visibility="Collapsed" Text="⚠ Required field"/>
 
-                <!-- Category -->
+                
                 <TextBlock Text="Category:" Margin="0,10,0,0"/>
                 <ComboBox x:Name="CategoryCombo" Height="28">
                     <ComboBoxItem Content="vet"/>
@@ -40,7 +40,7 @@
                 <TextBlock x:Name="CategoryError" Foreground="Red" FontSize="12"
                            Visibility="Collapsed" Text="⚠ Required field"/>
 
-                <!-- Gender -->
+                
                 <TextBlock Text="Gender:" Margin="0,10,0,0"/>
                 <ComboBox x:Name="GenderComboBox" Height="28">
                     <ComboBoxItem Content="male"/>
@@ -49,25 +49,25 @@
                 <TextBlock x:Name="GenderError" Foreground="Red" FontSize="12"
                            Visibility="Collapsed" Text="⚠ Please select gender"/>
 
-                <!-- Birth Date -->
+               
                 <TextBlock Text="Birth Date:" Margin="0,10,0,0"/>
                 <DatePicker x:Name="BirthDatePicker" SelectedDate="{x:Static sys:DateTime.Now}" Height="28"/>
                 <TextBlock x:Name="BirthError" Foreground="Red" FontSize="12"
                            Visibility="Collapsed" Text="⚠ Select birth date"/>
 
-                <!-- Work Start Date -->
+                
                 <TextBlock Text="Work Start Date:" Margin="0,10,0,0"/>
                 <DatePicker x:Name="WorkStartDatePicker" Height="28"/>
                 <TextBlock x:Name="WorkDateError" Foreground="Red" FontSize="12"
                            Visibility="Collapsed" Text="⚠ Select work start date"/>
 
-                <!-- Salary -->
+               
                 <TextBlock Text="Salary:" Margin="0,10,0,0"/>
                 <TextBox x:Name="SalaryBox" Height="28"/>
                 <TextBlock x:Name="SalaryError" Foreground="Red" FontSize="12"
                            Visibility="Collapsed" Text="⚠ Must be a positive number"/>
 
-                <!-- Buttons -->
+                
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
                     <Button Content="💾 Save" Width="100" Margin="5" Click="Save_Click"/>
                     <Button Content="❌ Cancel" Width="100" Margin="5" Click="Cancel_Click"/>

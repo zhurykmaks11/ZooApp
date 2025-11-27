@@ -30,18 +30,15 @@ namespace ZooApp.Views
             LoadAnimals();
             ApplyRoleRules();
         }
-
-        // 🔐 RULES FOR ROLES
+        
         private void ApplyRoleRules()
         {
             switch (_role)
             {
                 case "admin":
-                    // full access
                     break;
 
                 case "operator":
-                    // теж має повний CRUD по тваринах
                     break;
 
                 case "authorized":
@@ -64,10 +61,8 @@ namespace ZooApp.Views
             var window = new AddEditAnimalWindow(_role);
             if (window.ShowDialog() == true)
             {
-                // при InsertOne драйвер Mongo заповнить Id
                 _animalsService.AddAnimal(window.Animal);
-
-                // якщо є батьки — прив'язуємо дитину
+                
                 if (!string.IsNullOrEmpty(window.Animal.Id))
                 {
                     _animalsService.AddChild(
@@ -90,8 +85,7 @@ namespace ZooApp.Views
                 MessageBox.Show("Select an animal.");
                 return;
             }
-
-            // Створюємо копію, щоб не правити напряму в гріді
+            
             var clone = new Animal
             {
                 Id = selected.Id,

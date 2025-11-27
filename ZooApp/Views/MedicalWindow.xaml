@@ -11,19 +11,18 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
-        <!-- Панель керування -->
+        
         <Grid Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/> <!-- 0 -->
-                <ColumnDefinition Width="Auto"/> <!-- 1 -->
-                <ColumnDefinition Width="Auto"/> <!-- 2 -->
-                <ColumnDefinition Width="Auto"/> <!-- 3 -->
-                <ColumnDefinition Width="200"/>  <!-- 4 -->
-                <ColumnDefinition Width="Auto"/> <!-- 5 -->
-                <ColumnDefinition Width="Auto"/> <!-- 6 -->
-                <ColumnDefinition Width="Auto"/> <!-- 7 -->
-                <ColumnDefinition Width="Auto"/> <!-- 7 -->
+                <ColumnDefinition Width="Auto"/> 
+                <ColumnDefinition Width="Auto"/> 
+                <ColumnDefinition Width="Auto"/> 
+                <ColumnDefinition Width="Auto"/> 
+                <ColumnDefinition Width="200"/>  
+                <ColumnDefinition Width="Auto"/> 
+                <ColumnDefinition Width="Auto"/> 
+                <ColumnDefinition Width="Auto"/> 
+                <ColumnDefinition Width="Auto"/> 
             </Grid.ColumnDefinitions>
 
             <Button x:Name="AddRecordButton"
@@ -97,8 +96,7 @@
                     Margin="5"
                     Click="Back_Click"/>
         </Grid>
-
-        <!-- Таблиця медичних записів -->
+        
         <DataGrid x:Name="MedicalGrid"
                   Grid.Row="1"
                   AutoGenerateColumns="False"

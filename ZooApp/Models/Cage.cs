@@ -26,19 +26,19 @@ namespace ZooApp.Models
         [BsonElement("capacity")]
         public int Capacity { get; set; }
 
-        // Сумісні види
+       
         [BsonElement("compatibleSpecies")]
         public List<string> CompatibleSpecies { get; set; } = new();
 
-        // Дозволені типи
+        
         [BsonElement("allowedTypes")]
         public List<string> AllowedTypes { get; set; } = new();
 
-        // Тварини в клітці
+        
         [BsonElement("animals")]
         public List<ObjectId> Animals { get; set; } = new();
 
-        // Сусідні клітки
+        
         [BsonElement("neighborCageIds")]
         public List<string> NeighborCageIds { get; set; } = new();
     }

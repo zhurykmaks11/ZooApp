@@ -24,12 +24,11 @@
             <TextBox x:Name="CapacityBox" Height="28"/>
 
 
-            <!-- ✅ NEW FIELD: Compatible species -->
+            
             <TextBlock Text="Compatible species (comma separated):"/>
             <TextBox x:Name="SpeciesBox" Height="28"/>
 
-
-            <!-- ✅ NEW FIELD: Allowed Types -->
+            
             <TextBlock Text="Allowed Animal Types:"/>
             <ComboBox x:Name="TypesBox" Height="28" IsEditable="False">
                 <ComboBoxItem Content="herbivore"/>

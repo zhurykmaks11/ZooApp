@@ -14,13 +14,13 @@ namespace ZooApp.Services
             _animals = context.Animals;
         }
 
-        // ✅ Отримати всіх тварин
+       
         public List<Animal> GetAllAnimals()
         {
             return _animals.Find(_ => true).ToList();
         }
 
-        // ✅ Додати потомство до батьків
+       
         public void AddChild(string motherId, string fatherId, string childId)
         {
             if (!string.IsNullOrEmpty(motherId))
@@ -40,19 +40,19 @@ namespace ZooApp.Services
             }
         }
 
-        // ✅ Додати тварину
+        
         public void AddAnimal(Animal animal)
         {
             _animals.InsertOne(animal);
         }
 
-        // ✅ Оновити тварину
+       
         public void UpdateAnimal(Animal animal)
         {
             _animals.ReplaceOne(a => a.Id == animal.Id, animal);
         }
 
-        // ✅ Видалити тварину
+        
         public void DeleteAnimal(string id)
         {
             _animals.DeleteOne(a => a.Id == id);

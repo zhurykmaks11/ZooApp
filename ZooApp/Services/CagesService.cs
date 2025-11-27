@@ -18,30 +18,30 @@ namespace ZooApp.Services
             _animals = context.Animals;
         }
 
-        // GET ALL
+        
         public List<Cage> GetAllCages()
         {
             return _cages.Find(_ => true).ToList();
         }
 
-        // GET BY ID
+        
         public Cage GetCage(string cageId)
         {
             if (!ObjectId.TryParse(cageId, out var id)) return null;
             return _cages.Find(c => c.Id == id).FirstOrDefault();
         }
 
-        // ADD
+        
         public void AddCage(Cage cage) => _cages.InsertOne(cage);
 
-        // DELETE
+       
         public void DeleteCage(string cageId)
         {
             if (!ObjectId.TryParse(cageId, out var id)) return;
             _cages.DeleteOne(c => c.Id == id);
         }
 
-        // UPDATE BASIC PROPERTIES
+        
         public void UpdateCage(string cageId, string location, string size, int cap, List<string> species)
         {
             if (!ObjectId.TryParse(cageId, out var id)) return;
@@ -54,10 +54,7 @@ namespace ZooApp.Services
 
             _cages.UpdateOne(c => c.Id == id, upd);
         }
-
-        // ---------------------------------------------
-        //  FULL CHECK (IDEAL): COMPATIBILITY + ANIMAL TYPE + WINTER + NEIGHBORS
-        // ---------------------------------------------
+        
         public bool CanAssignAnimalSafe(string cageId, Animal animal)
         {
             if (!ObjectId.TryParse(cageId, out var cageObjId))
@@ -66,16 +63,16 @@ namespace ZooApp.Services
             var cage = _cages.Find(c => c.Id == cageObjId).FirstOrDefault();
             if (cage == null) return false;
 
-            // 1 — capacity
+           
             if (cage.Animals.Count >= cage.Capacity)
                 return false;
 
-            // 2 — species
+           
             if (cage.CompatibleSpecies.Count > 0 &&
                 !cage.CompatibleSpecies.Any(s => s.ToLower() == animal.Species.ToLower()))
                 return false;
 
-            // 3 — predator/herbivore rules
+           
             var inside = _animals.Find(a => a.CageId == cageId).ToList();
 
             if (animal.Type == "predator" && inside.Any(a => a.Type == "herbivore"))
@@ -84,16 +81,16 @@ namespace ZooApp.Services
             if (animal.Type == "herbivore" && inside.Any(a => a.Type == "predator"))
                 return false;
 
-            // 4 — allowed types (from cage config)
+            
             if (cage.AllowedTypes.Count > 0 &&
                 !cage.AllowedTypes.Contains(animal.Type))
                 return false;
 
-            // 5 — winter requirement
+            
             if (animal.NeedsWarmShelter && !cage.Heated)
                 return false;
 
-            // 6 — neighbors
+            
             foreach (var nId in cage.NeighborCageIds)
             {
                 var neighbors = _animals.Find(a => a.CageId == nId).ToList();
@@ -108,9 +105,7 @@ namespace ZooApp.Services
             return true;
         }
 
-        // ---------------------------------------------------
-        //  ADD ANIMAL TO CAGE + UPDATE BOTH ANIMAL AND CAGE
-        // ---------------------------------------------------
+       
         public bool AddAnimalToCage(string animalId, string cageId)
         {
             if (!ObjectId.TryParse(animalId, out var aId)) return false;
@@ -122,20 +117,18 @@ namespace ZooApp.Services
             if (!CanAssignAnimalSafe(cageId, animal))
                 return false;
 
-            // update cage
+            
             _cages.UpdateOne(c => c.Id == cId,
                 Builders<Cage>.Update.Push(c => c.Animals, aId));
 
-            // update animal
+            
             _animals.UpdateOne(a => a.Id == animalId,
                 Builders<Animal>.Update.Set(a => a.CageId, cageId));
 
             return true;
         }
 
-        // ---------------------------------------------------
-        // REMOVE
-        // ---------------------------------------------------
+        
         public void RemoveAnimalFromCage(string animalId, string cageId)
         {
             if (!ObjectId.TryParse(animalId, out var aId)) return;
@@ -148,9 +141,7 @@ namespace ZooApp.Services
                 Builders<Animal>.Update.Set(a => a.CageId, null));
         }
 
-        // ---------------------------------------------------
-        // MOVE (SMART MOVE)
-        // ---------------------------------------------------
+        
         public bool MoveAnimal(string animalId, string newCageId)
         {
             var animal = _animals.Find(a => a.Id == animalId).FirstOrDefault();

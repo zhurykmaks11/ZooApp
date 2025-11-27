@@ -27,7 +27,7 @@ namespace ZooApp.Views
             DatePicker.SelectedDate = DateTime.Now;
         }
 
-        // режим, коли тварина вже відома (для AddCheckup)
+        
         public AddMedicalWindow(Animal fixedAnimal) : this()
         {
             if (fixedAnimal != null)
@@ -74,21 +74,21 @@ namespace ZooApp.Views
                 Treatment = TreatmentBox.Text.Trim()
             };
 
-            // шукаємо існуючу картку
+            
             var existingRecord = _medicalService
                 .GetAllRecords()
                 .FirstOrDefault(r => r.AnimalId == selectedAnimal.Id);
 
             if (existingRecord != null)
             {
-                // додаємо новий чекап
+                
                 _medicalService.AddCheckup(existingRecord.Id, checkup);
                 MessageBox.Show($"✅ Added new checkup for '{selectedAnimal.Name}'.", "Success",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
-                // створюємо нову картку
+                
                 var newRecord = new MedicalRecord
                 {
                     AnimalId = selectedAnimal.Id,

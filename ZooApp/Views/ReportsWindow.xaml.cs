@@ -14,7 +14,7 @@ namespace ZooApp.Views
         private readonly string _role;
         private readonly string _username;
 
-        // Сервіси
+      
         private readonly AnimalsService _animalsService;
         private readonly CagesService _cagesService;
         private readonly MedicalService _medicalService;
@@ -23,7 +23,7 @@ namespace ZooApp.Views
         private readonly FeedingService _feedingService;
         private readonly ExchangeService _exchangeService;
 
-        // Кешовані колекції
+        
         private List<Animal> _allAnimals = new();
         private List<Cage> _allCages = new();
         private List<Employee> _allEmployees = new();
@@ -48,7 +48,7 @@ namespace ZooApp.Views
 
             LoadLookups();
 
-            // За замовчуванням — перший запит
+            
             ReportSelector.SelectedIndex = 0;
             ShowParamsForReport("1");
         }
@@ -62,16 +62,14 @@ namespace ZooApp.Views
             _allEmployees = _employeeService.GetAllEmployees();
             _allSuppliers = _supplierService.GetAll();
 
-            // Q1 cages
+           
             Q1_CageCombo.ItemsSource = _allCages;
 
-            // Q6 cages
+            
             Q6_CageCombo.ItemsSource = _allCages;
-
-            // Q3 animals
+            
             Q3_AnimalCombo.ItemsSource = _allAnimals;
-
-            // Заглушка – якщо щось не вибране, щоб не падало
+            
             if (Q1_SortCombo.SelectedItem == null && Q1_SortCombo.Items.Count > 0)
                 Q1_SortCombo.SelectedIndex = 0;
         }
@@ -192,10 +190,7 @@ namespace ZooApp.Views
         #endregion
 
         #region Query 1: Animals general
-
-        // 1) Одержати загальну кількість та список всіх тварин у зоопарку
-        //    + тварин вказаного виду, які живуть у вказаній клітці, 
-        //    з можливістю сортувати за віком / вагою / зростом.
+        
         private void RunQuery1_AnimalsGeneral()
         {
             string speciesFilter = Q1_SpeciesBox.Text.Trim().ToLower();
@@ -253,9 +248,7 @@ namespace ZooApp.Views
         #endregion
 
         #region Query 2: Vaccines / illnesses / offspring
-
-        // 2) Тварини: яким зроблене вказане щеплення, які 
-        //    перехворіли вказаною хворобою, за віком, статтю, потомством.
+        
         private void RunQuery2_Medical()
         {
             string vaccineFilter = Q2_VaccineBox.Text.Trim().ToLower();
@@ -270,8 +263,7 @@ namespace ZooApp.Views
 
             var records = _medicalService.GetAllRecords();
             var animals = _allAnimals;
-
-            // обчислення кількості потомства
+            
             var offspringCounts = animals.ToDictionary(a => a.Id, a =>
                 animals.Count(ch => ch.MotherId == a.Id || ch.FatherId == a.Id));
 
@@ -290,8 +282,7 @@ namespace ZooApp.Views
                 var last = item.Record.Checkups
                     .OrderByDescending(c => c.Date)
                     .FirstOrDefault();
-
-                // фільтр по статі
+                
                 if (genderTag == "male" && a.Gender != "male") continue;
                 if (genderTag == "female" && a.Gender != "female") continue;
 
@@ -353,13 +344,13 @@ private void RunQuery3_EmployeeAccess()
     var animals = _allAnimals;
     var employees = _allEmployees;
 
-    // Категорії, які мають доступ до тварин
+    
     var accessCategories = new[] { "vet", "cleaner", "trainer" };
 
-    // IDs тварин, яких шукаємо
+    
     var targetAnimalIds = new HashSet<string>();
 
-    // 🔍 Фільтр за видом
+    
     if (!string.IsNullOrWhiteSpace(speciesFilter))
     {
         foreach (var a in animals.Where(a =>
@@ -370,7 +361,7 @@ private void RunQuery3_EmployeeAccess()
         }
     }
 
-    // 🔍 Фільтр за конкретною твариною
+    
     if (!string.IsNullOrEmpty(animalId))
     {
         targetAnimalIds.Add(animalId);
@@ -380,7 +371,7 @@ private void RunQuery3_EmployeeAccess()
 
     if (targetAnimalIds.Count > 0)
     {
-        // 📌 Вибрані тварини → шукаємо працівників, які закріплені за ними
+        
         foreach (var emp in employees)
         {
             if (!accessCategories.Contains(emp.Category.ToLower()))
@@ -405,7 +396,6 @@ private void RunQuery3_EmployeeAccess()
     }
     else
     {
-        // 📌 Нічого не вибрали → повертаємо всіх, хто має доступ до кліток
         foreach (var emp in employees.Where(e =>
                      accessCategories.Contains(e.Category.ToLower())))
         {
@@ -429,7 +419,7 @@ private void RunQuery3_EmployeeAccess()
 
         #region Query 4: Suppliers
 
-        // 4) Постачальники кормів: загалом + фільтр по типу корму.
+       
         private void RunQuery4_Suppliers()
         {
             string feedFilter = Q4_FeedTypeBox.Text.Trim().ToLower();
@@ -462,9 +452,7 @@ private void RunQuery3_EmployeeAccess()
         #endregion
 
         #region Query 5: Animals by feed & season
-
-        // 5) Перелік та кількість тварин, які потребують певного корму
-        //    у вказаному сезоні або цілий рік.
+        
         private void RunQuery5_FeedSeason()
         {
             string feedType = Q5_FeedTypeBox.Text.Trim().ToLower();
@@ -485,8 +473,7 @@ private void RunQuery3_EmployeeAccess()
                     !string.IsNullOrEmpty(f.Season) &&
                     f.Season.Equals(seasonTag, StringComparison.OrdinalIgnoreCase));
             }
-
-            // Об'єднати по тварині + типу корму (щоб не дублюватись зайво)
+            
             var grouped = feedings
                 .GroupBy(f => new { f.AnimalName, f.FeedType, f.Season })
                 .Select(g => new
@@ -506,9 +493,7 @@ private void RunQuery3_EmployeeAccess()
         #endregion
 
         #region Query 6: Full animals info + potential offspring
-
-        // 6) Повна інформація про тварин, фільтр по виду, клітці, імені +
-        //    перелік тварин, від яких можна очікувати потомства.
+        
         private void RunQuery6_AnimalsFull()
         {
             string speciesFilter = Q6_SpeciesBox.Text.Trim().ToLower();
@@ -547,7 +532,7 @@ private void RunQuery3_EmployeeAccess()
                 int age = GetAgeYears(a.BirthDate);
                 int offspring = allAnimals.Count(ch => ch.MotherId == a.Id || ch.FatherId == a.Id);
 
-                bool potentialParent = age >= 2; // дуже проста логіка
+                bool potentialParent = age >= 2; 
 
                 if (onlyPotential && !potentialParent)
                     continue;
@@ -578,9 +563,7 @@ private void RunQuery3_EmployeeAccess()
         #endregion
 
         #region Query 7: Partner zoos
-
-        // 7) Список та загальна кількість зоопарків, з якими відбувся обмін
-        //    тваринами загалом або лише вказаного виду.
+        
         private void RunQuery7_PartnerZoos()
         {
             string speciesFilter = Q7_SpeciesBox.Text.Trim().ToLower();
@@ -619,9 +602,7 @@ private void RunQuery3_EmployeeAccess()
         #endregion
 
         #region Query 8: Employees filters
-
-        // 8) Список та загальна кількість працівників: категорія, стаж,
-        //    стать, вік, зарплата.
+        
         private void RunQuery8_EmployeesFilters()
         {
             string category = (Q8_CategoryCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "(будь-яка)";
@@ -675,9 +656,7 @@ private void RunQuery3_EmployeeAccess()
         #endregion
 
         #region Query 9: Warm animals
-
-        // 9) Список та загальна кількість тварин, які потребують теплого приміщення
-        //    на зиму, по виду / віку.
+        
         private void RunQuery9_WarmAnimals()
         {
             string speciesFilter = Q9_SpeciesBox.Text.Trim().ToLower();
@@ -721,14 +700,7 @@ private void RunQuery3_EmployeeAccess()
         #endregion
 
         #region Query 10: Zoo feeds
-
-        // 10) Список та обсяг кормів, які виготовлені зоопарком повністю /
-        //     або кормів, якими зоопарк забезпечує себе повністю.
-        //
-        // У спрощеному варіанті:
-        //  - групуємо FeedingSchedule по типу корму
-        //  - дивимось, чи є хоч один постачальник, який постачає цей корм
-        //  - якщо постачальників немає → вважаємо, що зоопарк виготовляє сам.
+        
         private void RunQuery10_ZooFeeds()
         {
             string modeTag = (Q10_ModeCombo.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "all";

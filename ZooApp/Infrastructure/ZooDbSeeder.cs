@@ -14,7 +14,7 @@ namespace ZooApp.Data
     {
         public static void Seed(MongoDbContext db)
         {
-            // 🔄 Повне скидання основних колекцій, включаючи KeyUsers
+            
             db.Animals.DeleteMany(Builders<Animal>.Filter.Empty);
             db.Cages.DeleteMany(Builders<Cage>.Filter.Empty);
             db.Employees.DeleteMany(Builders<Employee>.Filter.Empty);
@@ -24,14 +24,14 @@ namespace ZooApp.Data
             db.ExchangeRecords.DeleteMany(Builders<ExchangeRecord>.Filter.Empty);
             db.MedicalRecords.DeleteMany(Builders<MedicalRecord>.Filter.Empty);
             
-            // ⭐ Додаємо очищення та створення KeyUsers
+           
             db.KeyUsers.DeleteMany(Builders<KeyUser>.Filter.Empty);
             var keyUsers = GetKeyUsers();
             db.KeyUsers.InsertMany(keyUsers);
 
-            // ───────────────────────────── animals / cages / employees ─────────────────────────────
+            
             var animals = GetAnimals();
-            db.Animals.InsertMany(animals); // тут Mongo заповнює Id
+            db.Animals.InsertMany(animals); 
 
             var cages = GetCages();
             db.Cages.InsertMany(cages);
@@ -39,14 +39,14 @@ namespace ZooApp.Data
             var employees = GetEmployees();
             db.Employees.InsertMany(employees);
 
-            // ───────────────────────────── suppliers / feeds ─────────────────────────────
+           
             var suppliers = GetSuppliers();
             db.Suppliers.InsertMany(suppliers);
 
             var feeds = GetFeeds(suppliers);
             db.Feeds.InsertMany(feeds);
 
-            // ───────────────────────────── feeding / medical / exchanges ─────────────────────────────
+            
             var feeding = GetFeeding(animals);
             db.FeedingSchedules.InsertMany(feeding);
 
@@ -56,7 +56,7 @@ namespace ZooApp.Data
             var exchanges = GetExchanges(animals);
             db.ExchangeRecords.InsertMany(exchanges);
             
-            // ⭐ Пост-ініціалізація зв'язків
+            
             AssignAnimalsToCages(db);
             AssignEmployeesToAnimals(db);
         }
@@ -68,7 +68,7 @@ namespace ZooApp.Data
                 return BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
             }
         }
-        // ⭐ НОВИЙ МЕТОД: Генерація початкових користувачів
+        
         private static List<KeyUser> GetKeyUsers()
         {
             return new List<KeyUser>
@@ -76,33 +76,31 @@ namespace ZooApp.Data
                 new KeyUser
                 {
                     Login = "admin",
-                    Password = HashPassword("1234"), // ⭐ ВИКОРИСТОВУЄМО МЕТОД SHA256
+                    Password = HashPassword("1234"), 
                     Role = "admin"
                 },
                 new KeyUser
                 {
                     Login = "operator",
-                    Password = HashPassword("1234"), // ⭐ ВИКОРИСТОВУЄМО МЕТОД SHA256
+                    Password = HashPassword("1234"), 
                     Role = "operator"
                 },
                 new KeyUser
                 {
                     Login = "authorized", 
-                    Password = HashPassword("1234"), // ⭐ ВИКОРИСТОВУЄМО МЕТОД SHA256
+                    Password = HashPassword("1234"), 
                     Role = "authorized"
                 },
                 new KeyUser
                 {
                     Login = "guest",
-                    Password = HashPassword("1234"), // ⭐ ВИКОРИСТОВУЄМО МЕТОД SHA256
+                    Password = HashPassword("1234"), 
                     Role = "guest"
                 }
             };
         }
 
-        // ───────────────────────────────────────
-        // ТВАРИНИ
-        // ───────────────────────────────────────
+        
         private static List<Animal> GetAnimals()
         {
             var rnd = new Random();
@@ -151,9 +149,7 @@ namespace ZooApp.Data
             return animals;
         }
 
-        // ───────────────────────────────────────
-        // КЛІТКИ
-        // ───────────────────────────────────────
+        
         private static List<Cage> GetCages() => new()
         {
             new Cage
@@ -206,9 +202,7 @@ namespace ZooApp.Data
             }
         };
 
-        // ───────────────────────────────────────
-        // 👨‍🔧 Працівники (ветеринари, прибиральники, тренери)
-        // ───────────────────────────────────────
+        
         private static List<Employee> GetEmployees() => new()
         {
             new Employee
@@ -263,9 +257,7 @@ namespace ZooApp.Data
             }
         };
 
-        // ───────────────────────────────────────
-        // 🚚 Постачальники
-        // ───────────────────────────────────────
+        
         private static List<Supplier> GetSuppliers() => new()
         {
             new Supplier
@@ -286,9 +278,7 @@ namespace ZooApp.Data
             }
         };
 
-        // ───────────────────────────────────────
-        // 🍎 Корма
-        // ───────────────────────────────────────
+       
         private static List<Feed> GetFeeds(List<Supplier> suppliers)
         {
             var list = new List<Feed>();
@@ -333,9 +323,7 @@ namespace ZooApp.Data
             return list;
         }
 
-        // ───────────────────────────────────────
-        // 🍽 Годування (прив’язане до реальних тварин)
-        // ───────────────────────────────────────
+        
         private static List<FeedingSchedule> GetFeeding(List<Animal> animals)
         {
             var rnd = new Random();
@@ -362,9 +350,7 @@ namespace ZooApp.Data
             return result;
         }
 
-        // ───────────────────────────────────────
-        // 🩺 Медичні записи (реальні animalId)
-        // ───────────────────────────────────────
+        
         private static List<MedicalRecord> GetMedicalRecords(List<Animal> animals)
         {
             var rnd = new Random();
@@ -404,9 +390,7 @@ namespace ZooApp.Data
             return result;
         }
 
-        // ───────────────────────────────────────
-        // 🔄 Обміни (прив’язка до реальних тварин)
-        // ───────────────────────────────────────
+        
         private static List<ExchangeRecord> GetExchanges(List<Animal> animals)
         {
             var list = new List<ExchangeRecord>();
@@ -442,9 +426,7 @@ namespace ZooApp.Data
             return list;
         }
 
-        // ───────────────────────────────────────
-        // ⭐ РОЗСЕЛЕННЯ ТВАРИН ПО КЛІТКАХ
-        // ───────────────────────────────────────
+       
         private static void AssignAnimalsToCages(MongoDbContext db)
         {
             var animals = db.Animals.Find(_ => true).ToList();
@@ -469,7 +451,7 @@ namespace ZooApp.Data
                 }
             }
 
-            // зберігаємо назад
+           
             foreach (var animal in animals)
             {
                 db.Animals.ReplaceOne(a => a.Id == animal.Id, animal);
@@ -481,9 +463,7 @@ namespace ZooApp.Data
             }
         }
 
-        // ───────────────────────────────────────
-        // ⭐ ПРИВʼЯЗКА ПРАЦІВНИКІВ ДО ТВАРИН
-        // ───────────────────────────────────────
+      
         private static void AssignEmployeesToAnimals(MongoDbContext db)
         {
             var animals = db.Animals.Find(_ => true).ToList();
@@ -493,14 +473,14 @@ namespace ZooApp.Data
             var cleaners = employees.Where(e => e.Category == "cleaner").ToList();
             var trainers = employees.Where(e => e.Category == "trainer").ToList();
 
-            // для швидкого доступу
+            
             var employeesById = employees.ToDictionary(e => e.Id, e => e);
 
             foreach (var animal in animals)
             {
                 animal.EmployeesAssigned ??= new List<string>();
 
-                // 🔹 Ветеринари — всі тварини
+                
                 foreach (var vet in vets)
                 {
                     if (!animal.EmployeesAssigned.Contains(vet.Id))
@@ -511,7 +491,7 @@ namespace ZooApp.Data
                         vet.AnimalsUnderCare.Add(animal.Id);
                 }
 
-                // 🔹 Прибиральник — по клітці
+                
                 if (!string.IsNullOrEmpty(animal.CageId) &&
                     ObjectId.TryParse(animal.CageId, out var cageOid))
                 {
@@ -528,7 +508,7 @@ namespace ZooApp.Data
                     }
                 }
 
-                // 🔹 Тренери — тільки хижаки
+               
                 if (animal.Type == "predator")
                 {
                     foreach (var trainer in trainers)
@@ -543,7 +523,7 @@ namespace ZooApp.Data
                 }
             }
 
-            // зберігаємо назад
+           
             foreach (var animal in animals)
             {
                 db.Animals.ReplaceOne(a => a.Id == animal.Id, animal);

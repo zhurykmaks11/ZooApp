@@ -25,7 +25,7 @@ namespace ZooApp.Models
         [BsonElement("contracts")]
         public List<string> Contracts { get; set; } = new();
 
-        // 🟩 Для DataGrid (не зберігається в Mongo)
+        
         [BsonIgnore]
         public string FeedTypesString => string.Join(", ", FeedTypes);
     }

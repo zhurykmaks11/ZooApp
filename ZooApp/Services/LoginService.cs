@@ -14,7 +14,7 @@ namespace ZooApp.Services
         public LoginService(MongoDbContext context)
         {
             _context = context;
-            _users = context.KeyUsers; // ⬅ ВАЖЛИВО
+            _users = context.KeyUsers; 
         }
 
         public KeyUser Authenticate(string username, string password)

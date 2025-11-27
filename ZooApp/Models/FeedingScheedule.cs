@@ -12,7 +12,7 @@ namespace ZooApp.Models
         [BsonElement("animalId")]
         public string AnimalId { get; set; }
 
-        [BsonElement("animalName")]  // ✅ важливо
+        [BsonElement("animalName")]  
         public string AnimalName { get; set; }
 
         [BsonElement("feedType")]

@@ -70,7 +70,6 @@ namespace ZooApp.Views
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            // оновлюємо працівників
             foreach (var emp in _allEmployees)
             {
                 if (_assignedEmployees.Contains(emp))
@@ -85,8 +84,7 @@ namespace ZooApp.Views
 
                 _employeeService.UpdateEmployee(emp);
             }
-
-            // оновлюємо тварину
+            
             _animal.EmployeesAssigned = _assignedEmployees.Select(a => a.Id).ToList();
             _animalsService.UpdateAnimal(_animal);
 

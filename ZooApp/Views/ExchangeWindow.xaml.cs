@@ -33,12 +33,9 @@ namespace ZooApp.Views
             switch (_role.ToLower())
             {
                 case "admin":
-                    break; // повний доступ
+                    break; 
 
                 case "operator":
-                    // оператор може тільки ADD
-                    EditButton.IsEnabled = false;
-                    DeleteButton.IsEnabled = false;
                     break;
 
                 case "authorized":

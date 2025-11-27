@@ -12,7 +12,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Кнопки -->
+       
         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
             <Button x:Name="AddCageButton"
                     Content="➕ Add Cage"
@@ -57,7 +57,7 @@
                     Click="Back_Click"/>
         </StackPanel>
 
-        <!-- Таблиця кліток -->
+       
         <DataGrid x:Name="CagesGrid"
                   Grid.Row="1"
                   AutoGenerateColumns="False"

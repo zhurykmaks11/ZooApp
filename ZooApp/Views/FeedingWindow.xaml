@@ -9,7 +9,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Верхня панель кнопок -->
+        
         <Grid Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -48,7 +48,7 @@
 
         </Grid>
 
-        <!-- Таблиця з даними -->
+        
         <DataGrid x:Name="FeedingGrid"
                   Grid.Row="1"
                   AutoGenerateColumns="False"

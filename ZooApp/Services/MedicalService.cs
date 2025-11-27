@@ -17,39 +17,36 @@ namespace ZooApp.Services
             _animals = context.Animals;
         }
 
-        // ✅ Отримати всі медичні записи
+        
         public List<MedicalRecord> GetAllRecords()
         {
             return _records.Find(_ => true).ToList();
         }
 
-        // ✅ Додати нову медичну картку
+        
         public void AddMedicalRecord(MedicalRecord record)
         {
             _records.InsertOne(record);
 
-            // оновлюємо посилання в тварині (якщо є поле MedicalRecordId)
+            
             _animals.UpdateOne(
                 a => a.Id == record.AnimalId,
                 Builders<Animal>.Update.Set(a => a.MedicalRecordId, record.Id)
             );
         }
-
-        // ✅ Додати checkup до існуючої картки
+        
         public void AddCheckup(string recordId, Checkup checkup)
         {
             var update = Builders<MedicalRecord>.Update.Push(r => r.Checkups, checkup);
             _records.UpdateOne(r => r.Id == recordId, update);
         }
-
-        // ✅ Оновити останній checkup у картці
+        
         public void UpdateLatestCheckup(string recordId, Checkup updatedCheckup)
         {
             var record = _records.Find(r => r.Id == recordId).FirstOrDefault();
             if (record == null || record.Checkups.Count == 0)
                 return;
-
-            // вважаємо, що останній — по даті
+            
             var ordered = record.Checkups
                 .OrderBy(c => c.Date)
                 .ToList();
@@ -59,20 +56,17 @@ namespace ZooApp.Services
 
             _records.ReplaceOne(r => r.Id == recordId, record);
         }
-
-        // ✅ Видалити медичну картку
+        
         public void DeleteRecord(string id)
         {
             _records.DeleteOne(r => r.Id == id);
-
-            // можна за бажанням очистити MedicalRecordId в тварині
+            
             _animals.UpdateOne(
                 a => a.MedicalRecordId == id,
                 Builders<Animal>.Update.Set(a => a.MedicalRecordId, null)
             );
         }
-
-        // ✅ Пошук по хворобах / вакцинаціях (для Find)
+        
         public List<MedicalRecord> SearchByDiseaseOrVaccine(string query)
         {
             query = query.ToLower();
@@ -88,8 +82,7 @@ namespace ZooApp.Services
                 )
             ).ToList();
         }
-
-        // ✅ Статистика вакцинацій
+        
         public Dictionary<string, int> GetVaccinationStatistics()
         {
             var all = _records.Find(_ => true).ToList();

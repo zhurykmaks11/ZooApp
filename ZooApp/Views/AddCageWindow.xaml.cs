@@ -25,10 +25,9 @@ namespace ZooApp.Views
 
             _username = username;
 
-            // ✔ ЄДИНИЙ КОНТЕКСТ
+            
             var context = new MongoDbContext("mongodb://localhost:27017", "test");
-
-            // ✔ СЕРВІСИ
+            
             _cageService = new CagesService(context);
             _log = new LogService(context);
         }
@@ -43,8 +42,7 @@ namespace ZooApp.Views
                 MessageBox.Show("⚠ Please fill all fields!", "Error");
                 return;
             }
-
-            // VALIDATE SIZE
+            
             if (!sizeRegex.IsMatch(SizeBox.Text))
             {
                 MessageBox.Show("❌ Size must be in format NNxNN (example: 50x30)", "Error");
@@ -84,7 +82,7 @@ namespace ZooApp.Views
 
             _cageService.AddCage(cage);
 
-            // ✔ ЛОГУВАННЯ
+            
             _log.Write(_username, "Add Cage", $"Location={cage.Location}, Size={cage.Size}, Capacity={cage.Capacity}");
 
             MessageBox.Show("✅ Cage added!");

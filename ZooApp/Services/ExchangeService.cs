@@ -13,8 +13,7 @@ namespace ZooApp.Services
         {
             _exchangeCollection = context.ExchangeRecords;
         }
-
-        // 📌 Отримати всі записи
+        
         public List<ExchangeRecord> GetAll()
         {
             return _exchangeCollection.Find(_ => true)
@@ -22,12 +21,12 @@ namespace ZooApp.Services
                 .ToList();
         }
 
-        // 📌 Додати новий запис
+      
         public void Add(ExchangeRecord record)
         {
             _exchangeCollection.InsertOne(record);
         }
-        // 📌 Усі унікальні зоопарки-партнери
+       
         public List<string> GetPartnerZoos()
         {
             return _exchangeCollection.AsQueryable()
@@ -37,7 +36,7 @@ namespace ZooApp.Services
                 .ToList();
         }
 
-// 📌 Партнери тільки для вказаного виду
+
         public List<string> GetPartnerZoosBySpecies(string species)
         {
             return _exchangeCollection.AsQueryable()
@@ -49,19 +48,17 @@ namespace ZooApp.Services
         }
 
 
-        // 📌 Оновити існуючий
+       
         public void Update(ExchangeRecord record)
         {
             _exchangeCollection.ReplaceOne(r => r.Id == record.Id, record);
         }
-
-        // 📌 Видалити запис
+        
         public void Delete(string id)
         {
             _exchangeCollection.DeleteOne(r => r.Id == id);
         }
-
-        // 📌 Пошук (за ім’ям тварини, типом, зоопарком, причиною)
+        
         public List<ExchangeRecord> Search(string keyword)
         {
             keyword = keyword.ToLower();
@@ -73,8 +70,7 @@ namespace ZooApp.Services
                 r.Reason.ToLower().Contains(keyword)
             ).ToList();
         }
-
-        // 📌 Отримати всі записи по конкретній тварині
+        
         public List<ExchangeRecord> GetByAnimal(string animalId)
         {
             return _exchangeCollection.Find(r => r.AnimalId == animalId).ToList();

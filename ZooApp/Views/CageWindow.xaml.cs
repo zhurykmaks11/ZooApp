@@ -54,7 +54,6 @@ namespace ZooApp.Views
                     c.Size,
                     Heated = c.Heated ? "Yes" : "No",
                     c.Capacity,
-                    // Accurate count
                     AnimalCount = _animals.CountDocuments(a => a.CageId == c.IdString)
                 })
                 .ToList();

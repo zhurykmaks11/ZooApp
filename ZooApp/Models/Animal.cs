@@ -30,9 +30,7 @@ namespace ZooApp.Models
         [BsonElement("height")]
         public double Height { get; set; }
 
-        /// <summary>
-        /// "herbivore" / "predator"
-        /// </summary>
+      
         [BsonElement("type")]
         public string Type { get; set; }
 
@@ -51,7 +49,7 @@ namespace ZooApp.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string MedicalRecordId { get; set; }
 
-        // 🔥 НОВІ ПОЛЯ — для зимівлі, ізоляції, родини
+       
 
         [BsonElement("needsWarmShelter")]
         public bool NeedsWarmShelter { get; set; }
@@ -76,7 +74,7 @@ namespace ZooApp.Models
         [BsonElement("employeesAssigned")]
         public List<string> EmployeesAssigned { get; set; } = new();
 
-        // 🟢 Зручне відображення
+        
         [BsonIgnore]
         public string DisplayName
         {

@@ -12,16 +12,16 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- BUTTON PANEL -->
+        
         <Grid Grid.Row="0" Margin="0 0 0 10">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/> <!-- Add -->
-                <ColumnDefinition Width="Auto"/> <!-- Edit -->
-                <ColumnDefinition Width="Auto"/> <!-- Delete -->
-                <ColumnDefinition Width="200"/> <!-- Search -->
-                <ColumnDefinition Width="Auto"/> <!-- Find -->
-                <ColumnDefinition Width="Auto"/> <!-- Find -->
-                <ColumnDefinition Width="Auto"/> <!-- Back -->
+                <ColumnDefinition Width="Auto"/> 
+                <ColumnDefinition Width="Auto"/> 
+                <ColumnDefinition Width="Auto"/> 
+                <ColumnDefinition Width="200"/> 
+                <ColumnDefinition Width="Auto"/> 
+                <ColumnDefinition Width="Auto"/> 
+                <ColumnDefinition Width="Auto"/> 
             </Grid.ColumnDefinitions>
 
             <Button x:Name="AddButton"
@@ -69,8 +69,7 @@
             <Button Grid.Column="6" Content="⬅ Back" Width="100" Height="32" Margin="5" Click="Back_Click"/>
 
         </Grid>
-
-        <!-- TABLE -->
+        
         <DataGrid x:Name="ExchangeGrid"
                   Grid.Row="1"
                   AutoGenerateColumns="False"

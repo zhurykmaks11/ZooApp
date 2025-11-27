@@ -15,7 +15,7 @@ namespace ZooApp.Models
         public string FullName { get; set; }
 
         [BsonElement("category")]
-        public string Category { get; set; } // ветеринар, прибиральник, дресирувальник...
+        public string Category { get; set; } 
 
         [BsonElement("gender")]
         public string Gender { get; set; }

@@ -13,7 +13,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- TOP PANEL -->
+        
         <Grid Margin="0 0 0 10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -75,7 +75,7 @@
                     Click="Back_Click"/>
         </Grid>
 
-        <!-- TABLE -->
+        
         <DataGrid x:Name="AnimalsGrid"
                   Grid.Row="1"
                   AutoGenerateColumns="False"

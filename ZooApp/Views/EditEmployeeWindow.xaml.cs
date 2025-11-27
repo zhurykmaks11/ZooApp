@@ -24,8 +24,7 @@ namespace ZooApp.Views
         private void LoadData()
         {
             NameBox.Text = _employee.FullName;
-
-            // CATEGORY
+            
             foreach (ComboBoxItem item in CategoryCombo.Items)
             {
                 if (item.Content.ToString().ToLower() == _employee.Category.ToLower())
@@ -34,8 +33,7 @@ namespace ZooApp.Views
                     break;
                 }
             }
-
-            // GENDER
+            
             foreach (ComboBoxItem item in GenderComboBox.Items)
             {
                 if (item.Content.ToString().ToLower() == _employee.Gender.ToLower())
@@ -66,8 +64,7 @@ namespace ZooApp.Views
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
-            // UPDATE EMPLOYEE
+            
             _employee.FullName = NameBox.Text.Trim();
             _employee.Category = catItem.Content.ToString();
             _employee.Gender = genderItem.Content.ToString();

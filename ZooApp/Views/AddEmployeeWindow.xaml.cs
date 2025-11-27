@@ -23,7 +23,7 @@ namespace ZooApp.Views
         {
             bool isValid = true;
 
-            // FULL NAME
+            
             if (string.IsNullOrWhiteSpace(NameBox.Text))
             {
                 NameBox.BorderBrush = System.Windows.Media.Brushes.Red;
@@ -36,7 +36,7 @@ namespace ZooApp.Views
                 NameError.Visibility = Visibility.Collapsed;
             }
 
-            // CATEGORY
+            
             if (CategoryCombo.SelectedItem == null)
             {
                 CategoryCombo.BorderBrush = System.Windows.Media.Brushes.Red;
@@ -49,7 +49,7 @@ namespace ZooApp.Views
                 CategoryError.Visibility = Visibility.Collapsed;
             }
 
-            // GENDER
+           
             if (GenderComboBox.SelectedItem == null)
             {
                 GenderComboBox.BorderBrush = System.Windows.Media.Brushes.Red;
@@ -61,8 +61,7 @@ namespace ZooApp.Views
                 GenderComboBox.ClearValue(Border.BorderBrushProperty);
                 GenderError.Visibility = Visibility.Collapsed;
             }
-
-            // BIRTH DATE
+            
             if (BirthDatePicker.SelectedDate == null)
             {
                 BirthDatePicker.BorderBrush = System.Windows.Media.Brushes.Red;
@@ -74,8 +73,7 @@ namespace ZooApp.Views
                 BirthDatePicker.ClearValue(Border.BorderBrushProperty);
                 BirthError.Visibility = Visibility.Collapsed;
             }
-
-            // WORK START DATE
+            
             if (WorkStartDatePicker.SelectedDate == null)
             {
                 WorkStartDatePicker.BorderBrush = System.Windows.Media.Brushes.Red;
@@ -87,8 +85,7 @@ namespace ZooApp.Views
                 WorkStartDatePicker.ClearValue(Border.BorderBrushProperty);
                 WorkDateError.Visibility = Visibility.Collapsed;
             }
-
-            // SALARY
+            
             if (!double.TryParse(SalaryBox.Text, out double salary) || salary <= 0)
             {
                 SalaryBox.BorderBrush = System.Windows.Media.Brushes.Red;
@@ -102,8 +99,7 @@ namespace ZooApp.Views
             }
 
             if (!isValid) return;
-
-            // CREATE EMPLOYEE
+            
             var emp = new Employee
             {
                 FullName = NameBox.Text.Trim(),

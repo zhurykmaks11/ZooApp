@@ -12,8 +12,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
-        <!-- Верхня панель -->
+        
         <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
             <TextBox x:Name="SqlBox"
                      Width="700"
@@ -35,8 +34,7 @@
                     Margin="10 0"
                     Click="Back_Click"/>
         </StackPanel>
-
-        <!-- Результат -->
+        
         <DataGrid x:Name="ResultGrid"
                   Grid.Row="1"
                   AutoGenerateColumns="True"

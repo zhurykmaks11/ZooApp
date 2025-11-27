@@ -13,7 +13,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- LEFT: All employees -->
+        
         <StackPanel Grid.Column="0" Margin="10">
             <TextBlock Text="All Employees" FontSize="18" FontWeight="Bold"/>
             <ListBox x:Name="AllEmployeesList"
@@ -21,21 +21,20 @@
                      DisplayMemberPath="FullName"/>
         </StackPanel>
 
-        <!-- CENTER BUTTONS -->
+        
         <StackPanel Grid.Column="1" VerticalAlignment="Center">
             <Button Content="→ Add" Width="90" Margin="5" Click="Add_Click"/>
             <Button Content="← Remove" Width="90" Margin="5" Click="Remove_Click"/>
         </StackPanel>
 
-        <!-- RIGHT: Assigned employees -->
+       
         <StackPanel Grid.Column="2" Margin="10">
             <TextBlock Text="Assigned to Animal" FontSize="18" FontWeight="Bold"/>
             <ListBox x:Name="AssignedList"
                      Height="350"
                      DisplayMemberPath="FullName"/>
         </StackPanel>
-
-        <!-- SAVE BUTTON -->
+        
         <Button Grid.ColumnSpan="3"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"

@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using MongoDB.Driver;
 using ZooApp.Data;
-
+using ZooApp.Services; 
 namespace ZooApp.Views
 {
     public partial class MainWindow : Window
@@ -9,7 +9,7 @@ namespace ZooApp.Views
         private readonly string _role;
         private readonly string _username;
 
-        // Конструктор без параметрів (на всякий випадок)
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -19,13 +19,12 @@ namespace ZooApp.Views
             RoleLabel.Text = $"Logged in as: {_role}";
             ApplyAccessRules();
         }
-
-        // Основний конструктор
+        
         public MainWindow(string role, string username)
         {
             InitializeComponent();
 
-            _role = role.ToLower();           // приводимо до нижнього регістру
+            _role = role.ToLower();           
             _username = username;
 
             Title = $"ZooApp — {_role}";
@@ -33,16 +32,10 @@ namespace ZooApp.Views
             ApplyAccessRules();
         }
 
-        /// <summary>
-        /// Правила доступу для ролей:
-        /// admin      – повний доступ, SQL Console, Logs, Employees, AddUser
-        /// operator   – CRUD-операції з даними, SQL Console, без керування користувачами/логами
-        /// authorized – тільки перегляд + пошук, без SQL Console, без адміністрування
-        /// guest      – тільки перегляд даних, мінімальне меню
-        /// </summary>
+        
         private void ApplyAccessRules()
         {
-            // Спочатку ховаємо все "адмінське"
+           
             EmployeesButton.Visibility   = Visibility.Collapsed;
             AddUserButton.Visibility     = Visibility.Collapsed;
             LogsButton.Visibility        = Visibility.Collapsed;
@@ -53,25 +46,16 @@ namespace ZooApp.Views
             switch (_role)
             {
                 case "guest":
-                    // Гість може тільки дивитися дані:
-                    // показуємо лише базові модулі
-                    // (Animals, Cages, Feeding, Medical, Suppliers, Exchange)
-                    // але в самих вікнах мають бути відключені кнопки Add/Edit/Delete
                     break;
 
                 case "authorized":
-                    // Авторизований – перегляд + пошук.
-                    // Нема доступу до адміністрування і кастомної SQL-консолі
                     break;
 
                 case "operator":
-                    // Оператор – працює з даними (animals, cages, feeds, suppliers, exchange, medical)
-                    // але не керує користувачами і не дивиться системні логи.
-                    SqlConsoleButton.Visibility = Visibility.Visible; // оператор має доступ до SQL-консолі
+                    SqlConsoleButton.Visibility = Visibility.Visible;
                     break;
 
                 case "admin":
-                    // Адмін – бачить все
                     EmployeesButton.Visibility  = Visibility.Visible;
                     AddUserButton.Visibility    = Visibility.Visible;
                     LogsButton.Visibility       = Visibility.Visible;
@@ -83,8 +67,7 @@ namespace ZooApp.Views
                     break;
             }
         }
-
-        // -------------------- Навігація --------------------
+        
 
         private void Animals_Click(object sender, RoutedEventArgs e)
         {

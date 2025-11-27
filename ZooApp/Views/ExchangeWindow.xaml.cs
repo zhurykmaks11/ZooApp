@@ -36,8 +36,6 @@ namespace ZooApp.Views
                     break; 
 
                 case "operator":
-                    EditButton.IsEnabled = false;
-                    DeleteButton.IsEnabled = false;
                     break;
 
                 case "authorized":

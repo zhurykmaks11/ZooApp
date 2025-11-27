@@ -36,6 +36,8 @@ namespace ZooApp.Views
                     break;
 
                 case "operator":
+                    break;
+                
                 case "authorized":
                 case "guest":
                     AddButton.IsEnabled = false;

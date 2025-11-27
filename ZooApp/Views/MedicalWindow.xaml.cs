@@ -75,10 +75,6 @@ namespace ZooApp.Views
                     break;
 
                 case "operator":
-                    AddRecordButton.IsEnabled = false;
-                    AddCheckupButton.IsEnabled = false;
-                    DeleteButton.IsEnabled = false;
-                    EditCheckupButton.IsEnabled = false;
                     break;
 
                 case "authorized":
